@@ -18,6 +18,7 @@ import (
 	"k8s.io/utils/pointer"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -25,6 +26,7 @@ type ProjectService struct {
 	Repo              *repository.ProjectRepository
 	ProjectBuildRepo  *repository.ProjectBuildRepository
 	BuildTemplateRepo *repository.BuildTemplateRepository
+	ImageRepo         *repository.ImageRepository
 }
 
 /*
@@ -106,12 +108,59 @@ func (s *ProjectService) FetchBranchesDetails(gitlabId int, branch string) (inte
 BuildProject 构建项目逻辑
 */
 
+func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int) (int64, error) {
+	// 模版名称
+	buildTemplateId, err := strconv.Atoi(params.BuildTemplateId)
+	if err != nil {
+		return 0, err
+	}
+	buildTemplateName, imageId, err := s.BuildTemplateRepo.GetNameByID(buildTemplateId)
+	if err != nil {
+		return 0, err
+	}
+
+	// 镜像名称
+	imageName, err := s.ImageRepo.GetImageNameById(imageId)
+	if err != nil {
+		return 0, err
+	}
+	if imageName == "" {
+		return 0, errors.New("镜像不存在")
+	}
+
+	// 数据处理
+	params.ImageSource = imageName
+	paramsJson, err := json.Marshal(params)
+	if err != nil {
+		return 0, err
+	}
+	var paramsMap map[string]string
+	err = json.Unmarshal(paramsJson, &paramsMap)
+	if err != nil {
+		return 0, err
+	}
+
+	// 构建项目
+	_, err = JenkinsClient.BuildJob(context.Background(), buildTemplateName, paramsMap)
+	if err != nil {
+		return 0, err
+	}
+
+	jobBuild, err := JenkinsClient.GetAllBuildIds(context.Background(), buildTemplateName)
+	if err != nil {
+		return 0, err
+	}
+
+	// 保存构建记录
+	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), params.CreatedBy, projectID, jobBuild[0].Number+1)
+}
+
 func (s *ProjectService) BuildProject(params model.BuildParams, createBy string, projectID int) (int64, error) {
 	buildTemplateID, err := s.Repo.GetBuildTemplateIDByID(projectID)
 	if err != nil {
 		return 0, err
 	}
-	buildTemplateName, err := s.BuildTemplateRepo.GetNameByID(buildTemplateID)
+	buildTemplateName, _, err := s.BuildTemplateRepo.GetNameByID(buildTemplateID)
 	if err != nil {
 		return 0, err
 	}

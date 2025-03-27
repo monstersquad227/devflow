@@ -34,3 +34,13 @@ func (i *ImageRepository) GetImagesCount() (int, error) {
 	}
 	return count, nil
 }
+
+func (i *ImageRepository) GetImageNameById(id int) (string, error) {
+	query := "SELECT name " +
+		"FROM image WHERE id = ?"
+	var imageName string
+	if err := MysqlClient.QueryRow(query, id).Scan(&imageName); err != nil {
+		return "", err
+	}
+	return imageName, nil
+}

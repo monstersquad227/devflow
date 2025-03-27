@@ -36,14 +36,15 @@ func (b *BuildTemplateRepository) GetBuildTemplates(pageNumber, pageSize int) (i
 GetNameByID 通过 id 获取 build_template 记录的名称
 */
 
-func (b *BuildTemplateRepository) GetNameByID(id int) (string, error) {
-	var name string
-	query := "SELECT name " +
+func (b *BuildTemplateRepository) GetNameByID(id int) (string, int, error) {
+	var buildTemplateName string
+	var imageTemplateId int
+	query := "SELECT name, image_template_id " +
 		"FROM build_template " +
 		"WHERE id = ? "
-	err := MysqlClient.QueryRow(query, id).Scan(&name)
+	err := MysqlClient.QueryRow(query, id).Scan(&buildTemplateName, &imageTemplateId)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	return name, nil
+	return buildTemplateName, imageTemplateId, nil
 }

@@ -192,10 +192,10 @@ func (controller *ProjectController) BuildProject(c *gin.Context) {
 		return
 	}
 	createBy, _ := c.Get("account")
-
-	result, err := controller.Service.BuildProject(req, createBy.(string), projectId)
+	req.CreatedBy = createBy.(string)
+	result, err := controller.Service.BuildProjectV2(req, projectId)
 	if err != nil {
-		c.JSON(500, utils.Error(1, "内部错误", err))
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
 	c.JSON(http.StatusOK, utils.Success(result))

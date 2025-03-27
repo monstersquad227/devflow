@@ -34,7 +34,7 @@ CreateProjectBuild 创建 project_build 记录
 
 func (p *ProjectBuildRepository) CreateProjectBuild(params, createBy string, projectID int, jenkinsID int64) (int64, error) {
 	query := "INSERT " +
-		"INTO project_id, jenkins_id, build_status, build_params, create_by " +
+		"INTO project_build (project_id, jenkins_id, build_status, build_params, create_by) " +
 		"VALUES(?, ?, ?, ?, ?)"
 	result, err := MysqlClient.Exec(query, projectID, jenkinsID, "ING", params, createBy)
 	if err != nil {
