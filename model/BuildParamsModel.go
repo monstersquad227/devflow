@@ -33,7 +33,6 @@ type BuildParams struct {
 }
 
 type DotnetBuildParams struct {
-	DependGitlabName   string `json:"depend_gitlab_name,omitempty"`
 	DependGitlabRepo   string `json:"depend_gitlab_repo,omitempty"`
 	DependBranch       string `json:"depend_branch,omitempty"`
 	ProjectBuildPath   string `json:"project_build_path,omitempty"`
