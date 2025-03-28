@@ -187,7 +187,7 @@ func (controller *ProjectController) BuildProject(c *gin.Context) {
 		return
 	}
 	req := model.BuildParams{}
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err = c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, utils.Error(1, "参数错误", err))
 		return
 	}

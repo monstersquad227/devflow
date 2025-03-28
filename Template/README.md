@@ -8,7 +8,7 @@ The content in the template file is the pipeline content of Jenkins, and the int
 {
     "gitlab_name": "xxx-gateway",
     "deployment_name": "gateway",
-    "build_template_id": "101",
+    "task_id": "101",
     "branch": "master",
     "gitlab_repo": "git@gitlab.xxxxxxxxxxx.com:cdd_java/xxx-gateway.git",
     "environment_unique": "dev",

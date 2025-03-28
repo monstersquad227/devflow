@@ -26,6 +26,7 @@ type ProjectService struct {
 	Repo              *repository.ProjectRepository
 	ProjectBuildRepo  *repository.ProjectBuildRepository
 	BuildTemplateRepo *repository.BuildTemplateRepository
+	TaskRepo          *repository.TaskRepository
 	ImageRepo         *repository.ImageRepository
 }
 
@@ -110,11 +111,12 @@ BuildProject 构建项目逻辑
 
 func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int) (int64, error) {
 	// 模版名称
-	buildTemplateId, err := strconv.Atoi(params.BuildTemplateId)
+	taskId, err := strconv.Atoi(params.TaskID)
 	if err != nil {
 		return 0, err
 	}
-	buildTemplateName, imageId, err := s.BuildTemplateRepo.GetNameByID(buildTemplateId)
+	//buildTemplateName, imageId, err := s.BuildTemplateRepo.GetNameByID(taskId)
+	taskName, imageId, err := s.TaskRepo.GetTaskNameANDImageIDById(taskId)
 	if err != nil {
 		return 0, err
 	}
@@ -141,12 +143,12 @@ func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int)
 	}
 
 	// 构建项目
-	_, err = JenkinsClient.BuildJob(context.Background(), buildTemplateName, paramsMap)
+	_, err = JenkinsClient.BuildJob(context.Background(), taskName, paramsMap)
 	if err != nil {
 		return 0, err
 	}
 
-	jobBuild, err := JenkinsClient.GetAllBuildIds(context.Background(), buildTemplateName)
+	jobBuild, err := JenkinsClient.GetAllBuildIds(context.Background(), taskName)
 	if err != nil {
 		return 0, err
 	}
@@ -155,33 +157,33 @@ func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int)
 	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), params.CreatedBy, projectID, jobBuild[0].Number+1)
 }
 
-func (s *ProjectService) BuildProject(params model.BuildParams, createBy string, projectID int) (int64, error) {
-	buildTemplateID, err := s.Repo.GetBuildTemplateIDByID(projectID)
-	if err != nil {
-		return 0, err
-	}
-	buildTemplateName, _, err := s.BuildTemplateRepo.GetNameByID(buildTemplateID)
-	if err != nil {
-		return 0, err
-	}
-
-	paramsJson, err := json.Marshal(params)
-	if err != nil {
-		return 0, err
-	}
-
-	var paramsMap map[string]string
-	err = json.Unmarshal(paramsJson, &paramsMap)
-	if err != nil {
-		return 0, err
-	}
-
-	job, err := JenkinsClient.BuildJob(context.Background(), buildTemplateName, paramsMap)
-	if err != nil {
-		return 0, err
-	}
-	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), createBy, projectID, job+1)
-}
+//func (s *ProjectService) BuildProject(params model.BuildParams, createBy string, projectID int) (int64, error) {
+//	buildTemplateID, err := s.Repo.GetBuildTemplateIDByID(projectID)
+//	if err != nil {
+//		return 0, err
+//	}
+//	buildTemplateName, _, err := s.BuildTemplateRepo.GetNameByID(buildTemplateID)
+//	if err != nil {
+//		return 0, err
+//	}
+//
+//	paramsJson, err := json.Marshal(params)
+//	if err != nil {
+//		return 0, err
+//	}
+//
+//	var paramsMap map[string]string
+//	err = json.Unmarshal(paramsJson, &paramsMap)
+//	if err != nil {
+//		return 0, err
+//	}
+//
+//	job, err := JenkinsClient.BuildJob(context.Background(), buildTemplateName, paramsMap)
+//	if err != nil {
+//		return 0, err
+//	}
+//	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), createBy, projectID, job+1)
+//}
 
 /*
 DeployProject 发布项目逻辑

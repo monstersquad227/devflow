@@ -8,7 +8,7 @@ type Project struct {
 	DeploymentName     string    `json:"deployment_name,omitempty"`
 	GitlabID           int       `json:"gitlab_id,omitempty"`
 	GitlabRepo         string    `json:"gitlab_repo,omitempty"`
-	BuildTemplateID    *uint     `json:"build_template_id,omitempty"`
+	TaskID             int       `json:"task_id,omitempty"`
 	ProjectBuildPath   string    `json:"project_build_path,omitempty"`
 	ProjectPackageName string    `json:"project_package_name,omitempty"`
 	Description        string    `json:"description,omitempty"`

@@ -12,7 +12,7 @@ GetProjects 获取 project 记录，分页
 */
 
 func (r *ProjectRepository) GetProjects(pageNumber, pageSize int) (interface{}, error) {
-	query := "SELECT id, gitlab_name, deployment_name, gitlab_id, gitlab_repo, build_template_id, " +
+	query := "SELECT id, gitlab_name, deployment_name, gitlab_id, gitlab_repo, task_id, " +
 		"project_build_path, project_package_name, description " +
 		"FROM project WHERE is_deleted = 0 LIMIT ? OFFSET ? "
 
@@ -25,7 +25,7 @@ func (r *ProjectRepository) GetProjects(pageNumber, pageSize int) (interface{}, 
 	for rows.Next() {
 		obj := &model.Project{}
 		err = rows.Scan(&obj.ID, &obj.GitlabName, &obj.DeploymentName, &obj.GitlabID, &obj.GitlabRepo,
-			&obj.BuildTemplateID, &obj.ProjectBuildPath, &obj.ProjectPackageName, &obj.Description)
+			&obj.TaskID, &obj.ProjectBuildPath, &obj.ProjectPackageName, &obj.Description)
 		if err != nil {
 			return nil, err
 		}
@@ -89,9 +89,9 @@ UpdateProject 更新 project 记录: gitlab_id, gitlab_repo, build_template_id, 
 
 func (r *ProjectRepository) UpdateProject(project model.Project) (int64, error) {
 	query := "UPDATE project " +
-		"SET gitlab_id = ?, gitlab_repo = ?, build_template_id = ?, project_build_path = ?, project_package_name = ? " +
+		"SET gitlab_id = ?, gitlab_repo = ?, task_id = ?, project_build_path = ?, project_package_name = ? " +
 		"WHERE id = ?"
-	result, err := MysqlClient.Exec(query, project.GitlabID, project.GitlabRepo, project.BuildTemplateID, project.ProjectBuildPath, project.ProjectPackageName, project.ID)
+	result, err := MysqlClient.Exec(query, project.GitlabID, project.GitlabRepo, project.TaskID, project.ProjectBuildPath, project.ProjectPackageName, project.ID)
 	if err != nil {
 		return 0, err
 	}
@@ -108,9 +108,9 @@ CreateProject 创建 project 记录
 
 func (r *ProjectRepository) CreateProject(project model.Project) (int64, error) {
 	query := "INSERT " +
-		"INTO project(gitlab_name, deployment_name, build_template_id, gitlab_id, gitlab_repo, project_build_path, project_package_name, description) " +
+		"INTO project(gitlab_name, deployment_name, task_id, gitlab_id, gitlab_repo, project_build_path, project_package_name, description) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-	result, err := MysqlClient.Exec(query, project.GitlabName, project.DeploymentName, project.BuildTemplateID, project.GitlabID, project.GitlabRepo,
+	result, err := MysqlClient.Exec(query, project.GitlabName, project.DeploymentName, project.TaskID, project.GitlabID, project.GitlabRepo,
 		project.ProjectBuildPath, project.ProjectPackageName, project.Description)
 	if err != nil {
 		return 0, err

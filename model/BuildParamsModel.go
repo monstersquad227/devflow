@@ -20,7 +20,7 @@ package model
 type BuildParams struct {
 	GitlabName        string `json:"gitlab_name,omitempty"`
 	DeploymentName    string `json:"deployment_name,omitempty"`
-	BuildTemplateId   string `json:"build_template_id,omitempty"`
+	TaskID            string `json:"task_id,omitempty"`
 	Branch            string `json:"branch,omitempty"`
 	GitlabRepo        string `json:"gitlab_repo,omitempty"`
 	ImageSource       string `json:"image_source,omitempty"`
