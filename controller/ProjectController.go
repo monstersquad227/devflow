@@ -180,7 +180,7 @@ Body:
 */
 
 func (controller *ProjectController) BuildProject(c *gin.Context) {
-	pid := c.Param("project")
+	pid := c.Param("project") //项目ID
 	projectId, err := strconv.Atoi(pid)
 	if err != nil {
 		c.JSON(400, utils.Error(1, "参数错误", err))
@@ -262,7 +262,7 @@ Params:
 func (controller *ProjectController) UpdateProjectBuildStatus(c *gin.Context) {
 	projectName := c.Param("project")
 	jobIdStr := c.Param("jobId")
-	status := c.Query("status")
+	status := c.Param("status")
 
 	jobId, err := strconv.Atoi(jobIdStr[1:])
 	if err != nil {

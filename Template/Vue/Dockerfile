@@ -1,10 +1,14 @@
-FROM nginx:1.20
+FROM nginx:latest
+
+LABEL maintainer="NGINX"
+LABEL description="The startup user is root"
+LABEL author="monstersquad227"
+LABEL version="1.23.3"
+
 
 USER root
 
-WORKDIR /opt
-
 RUN sed -i "s#nginx;#root;#g" /etc/nginx/nginx.conf && \
-    rm -rf /etc/nginx/conf.d/default.conf || true
+        rm -rf /etc/nginx/conf.d/*
 
-COPY ./nginx.conf /etc/nginx/conf.d/
+COPY ./default.conf /etc/nginx/conf.d/

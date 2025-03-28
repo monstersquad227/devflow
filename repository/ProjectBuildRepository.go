@@ -1,6 +1,8 @@
 package repository
 
-import "devflow/model"
+import (
+	"devflow/model"
+)
 
 type ProjectBuildRepository struct {
 }
@@ -51,11 +53,12 @@ func (p *ProjectBuildRepository) CreateProjectBuild(params, createBy string, pro
 UpdateBuildStatus 通过 job_id project_id 来更新构建状态
 */
 
-func (p *ProjectBuildRepository) UpdateBuildStatus(projectId, jobId int, status string) (int64, error) {
+func (p *ProjectBuildRepository) UpdateBuildStatus(projectId, jenkinsId int, status string) (int64, error) {
 	query := "UPDATE project_build " +
 		"SET build_status = ? " +
-		"WHERE project_id = ? AND job_id = ? "
-	result, err := MysqlClient.Exec(query, status, projectId, jobId)
+		"WHERE project_id = ? AND jenkins_id = ? "
+
+	result, err := MysqlClient.Exec(query, status, projectId, jenkinsId)
 	if err != nil {
 		return 0, err
 	}

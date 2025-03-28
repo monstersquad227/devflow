@@ -23,11 +23,10 @@ import (
 )
 
 type ProjectService struct {
-	Repo              *repository.ProjectRepository
-	ProjectBuildRepo  *repository.ProjectBuildRepository
-	BuildTemplateRepo *repository.BuildTemplateRepository
-	TaskRepo          *repository.TaskRepository
-	ImageRepo         *repository.ImageRepository
+	Repo             *repository.ProjectRepository
+	ProjectBuildRepo *repository.ProjectBuildRepository
+	TaskRepo         *repository.TaskRepository
+	ImageRepo        *repository.ImageRepository
 }
 
 /*
@@ -115,7 +114,6 @@ func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int)
 	if err != nil {
 		return 0, err
 	}
-	//buildTemplateName, imageId, err := s.BuildTemplateRepo.GetNameByID(taskId)
 	taskName, imageId, err := s.TaskRepo.GetTaskNameANDImageIDById(taskId)
 	if err != nil {
 		return 0, err
