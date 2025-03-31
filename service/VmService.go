@@ -4,6 +4,7 @@ import (
 	"devflow/model"
 	"devflow/repository"
 	"devflow/utils"
+	"encoding/base64"
 )
 
 type VmService struct {
@@ -33,6 +34,22 @@ func (service *VmService) SaveVm(vm model.Vm) (int64, error) {
 
 func (service *VmService) RemoveVm(id int) (int64, error) {
 	return service.VmRepo.DeleteVm(id)
+}
+
+func (service *VmService) FetchVmPasswordById(id int) (string, error) {
+	password, err := service.VmRepo.GetVmPasswordById(id)
+	if err != nil {
+		return "", err
+	}
+	if password == "" {
+		return "", nil
+	}
+	decryptPassword, err := utils.DecryptAESGCM(password)
+	if err != nil {
+		return "", err
+	}
+	encodePassword := base64.StdEncoding.EncodeToString([]byte(decryptPassword))
+	return encodePassword, nil
 }
 
 func (service *VmService) FetchVmsByApplication(application string) (interface{}, error) {

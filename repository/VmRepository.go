@@ -56,6 +56,16 @@ func (receiver *VmRepository) DeleteVm(id int) (int64, error) {
 	return rowsAffected, nil
 }
 
+func (receiver *VmRepository) GetVmPasswordById(id int) (string, error) {
+	var password string
+	query := "SELECT password " +
+		"FROM vm WHERE id = ?"
+	if err := MysqlClient.QueryRow(query, id).Scan(&password); err != nil {
+		return "", err
+	}
+	return password, nil
+}
+
 func (receiver *VmRepository) GetVmsCount() (int, error) {
 	query := "SELECT count(id) " +
 		"FROM vm WHERE is_deleted = 0 "

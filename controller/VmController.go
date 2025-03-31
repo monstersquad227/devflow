@@ -85,8 +85,27 @@ func (v *VmController) DeleteVm(c *gin.Context) {
 	}))
 }
 
+func (v *VmController) GetVmPasswordById(c *gin.Context) {
+	vmId := c.Param("vm")
+	if vmId == "" {
+		c.JSON(400, utils.Error(1, "参数错误", errors.New(":vm 为空")))
+		return
+	}
+	id, err := strconv.Atoi(vmId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
+		return
+	}
+	password, err := v.VmService.FetchVmPasswordById(id)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(password))
+}
+
 func (v *VmController) GetVmsByApplication(c *gin.Context) {
-	application := c.Param("application")
+	application := c.Param("vm")
 	if application == "" {
 		c.JSON(400, utils.Error(1, "application不能为空", nil))
 		return
