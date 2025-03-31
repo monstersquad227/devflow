@@ -5,6 +5,7 @@ import (
 	"devflow/service"
 	"devflow/utils"
 	"encoding/base64"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -60,6 +61,27 @@ func (v *VmController) CreateVm(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
 		"LastInsertId": lastId,
+	}))
+}
+
+func (v *VmController) DeleteVm(c *gin.Context) {
+	vmId := c.Param("vm")
+	if vmId == "" {
+		c.JSON(400, utils.Error(1, "参数错误", errors.New(":vm 为空")))
+		return
+	}
+	id, err := strconv.Atoi(vmId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
+		return
+	}
+	affectedId, err := v.VmService.RemoveVm(id)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误"+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowsAffectedId": affectedId,
 	}))
 }
 

@@ -42,6 +42,20 @@ func (receiver *VmRepository) CreateVm(vm model.Vm) (int64, error) {
 	return id, nil
 }
 
+func (receiver *VmRepository) DeleteVm(id int) (int64, error) {
+	query := "UPDATE vm " +
+		"SET is_deleted = 1 WHERE id = ?"
+	result, err := MysqlClient.Exec(query, id)
+	if err != nil {
+		return 0, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return rowsAffected, nil
+}
+
 func (receiver *VmRepository) GetVmsCount() (int, error) {
 	query := "SELECT count(id) " +
 		"FROM vm WHERE is_deleted = 0 "

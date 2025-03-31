@@ -31,6 +31,10 @@ func (service *VmService) SaveVm(vm model.Vm) (int64, error) {
 	return service.VmRepo.CreateVm(vm)
 }
 
+func (service *VmService) RemoveVm(id int) (int64, error) {
+	return service.VmRepo.DeleteVm(id)
+}
+
 func (service *VmService) FetchVmsByApplication(application string) (interface{}, error) {
 	return service.VmRepo.GetVmsByApplication(application)
 }
