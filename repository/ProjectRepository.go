@@ -67,20 +67,17 @@ DeleteProject 通过 id 删除 project 记录
 */
 
 func (r *ProjectRepository) DeleteProject(id int) (int64, error) {
-	query := "DELETE " +
-		"FROM project WHERE id = ?"
+	query := "UPDATE project " +
+		"set is_deleted = 1 WHERE id = ?"
 	result, err := MysqlClient.Exec(query, id)
 	if err != nil {
 		return 0, err
 	}
-	row, err := result.RowsAffected()
+	rowAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, err
 	}
-	if row > 0 {
-		return row, nil
-	}
-	return 0, err
+	return rowAffected, err
 }
 
 /*

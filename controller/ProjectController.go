@@ -66,12 +66,12 @@ func (controller *ProjectController) DeleteProject(c *gin.Context) {
 	projectId := c.Param("project")
 	pId, err := strconv.Atoi(projectId)
 	if err != nil {
-		c.JSON(400, utils.Error(1, "projectId参数错误", err))
+		c.JSON(400, utils.Error(1, "参数错误", err))
 		return
 	}
 	result, err := controller.Service.RemoveProject(pId)
 	if err != nil {
-		c.JSON(500, utils.Error(1, "Sql错误", err))
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
 	c.JSON(http.StatusOK, utils.Success(result))

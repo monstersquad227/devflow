@@ -26,5 +26,5 @@ func ProjectRegister(api *gin.RouterGroup) {
 
 	api.PUT("/projects/:project", projectController.UpdateProject)                                         // 更新项目
 	api.PUT("/projects/:project/builds/:jobId/status/:status", projectController.UpdateProjectBuildStatus) // 更新构建状态回调 √
-	api.DELETE("/projects/:projectId", projectController.DeleteProject)                                    // 删除项目
+	api.DELETE("/projects/:project", projectController.DeleteProject)                                      // 删除项目
 }
