@@ -3,6 +3,7 @@ package service
 import (
 	"devflow/model"
 	"devflow/repository"
+	"devflow/utils"
 )
 
 type VmService struct {
@@ -19,6 +20,15 @@ func (service *VmService) FetchVms(pageNumber, pageSize int) ([]*model.Vm, int, 
 		return nil, 0, err
 	}
 	return vms, count, nil
+}
+
+func (service *VmService) SaveVm(vm model.Vm) (int64, error) {
+	encryptPassword, err := utils.EncryptAESGCM(vm.Password)
+	if err != nil {
+		return 0, err
+	}
+	vm.Password = encryptPassword
+	return service.VmRepo.CreateVm(vm)
 }
 
 func (service *VmService) FetchVmsByApplication(application string) (interface{}, error) {

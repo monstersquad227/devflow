@@ -27,6 +27,21 @@ func (receiver *VmRepository) GetVms(pageNumber, pageSize int) ([]*model.Vm, err
 	return data, nil
 }
 
+func (receiver *VmRepository) CreateVm(vm model.Vm) (int64, error) {
+	query := "INSERT " +
+		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, region, cloud_provider, os, password) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Region, vm.CloudProvider, vm.Os, vm.Password)
+	if err != nil {
+		return 0, err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
 func (receiver *VmRepository) GetVmsCount() (int, error) {
 	query := "SELECT count(id) " +
 		"FROM vm WHERE is_deleted = 0 "

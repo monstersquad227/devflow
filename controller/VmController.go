@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"devflow/model"
 	"devflow/service"
 	"devflow/utils"
+	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -34,6 +36,30 @@ func (v *VmController) GetVms(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
 		"data":  data,
 		"total": count,
+	}))
+}
+
+func (v *VmController) CreateVm(c *gin.Context) {
+	req := model.Vm{}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, utils.Error(1, "参数错误: "+err.Error(), err))
+		return
+	}
+
+	password, err := base64.StdEncoding.DecodeString(req.Password)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "base64: "+err.Error(), err))
+		return
+	}
+	req.Password = string(password)
+
+	lastId, err := v.VmService.SaveVm(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"LastInsertId": lastId,
 	}))
 }
 
