@@ -65,5 +65,11 @@ pipeline {
         always {
             deleteDir()
         }
+        failure {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=FAILURE """
+        }
+        success {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=SUCCESS """
+        }
     }
 }

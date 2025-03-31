@@ -64,10 +64,10 @@ pipeline {
             deleteDir()
         }
         failure {
-            sh ' # webhook 回调通知 '
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=FAILURE """
         }
         success {
-            sh ' # webhook 回调通知 '
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=SUCCESS """
         }
     }
 }
