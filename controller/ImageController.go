@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"devflow/model"
 	"devflow/service"
 	"devflow/utils"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -40,5 +42,80 @@ func (i *ImagesController) GetImages(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
 		"data":  result,
 		"total": count,
+	}))
+}
+
+func (i *ImagesController) CreateImage(c *gin.Context) {
+	req := model.Image{}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, utils.Error(1, "JSON 错误: "+err.Error(), err))
+		return
+	}
+	account, _ := c.Get("account")
+	req.CreatedBy = account.(string)
+	req.UpdatedBy = account.(string)
+
+	lastInsertId, err := i.ImageService.SaveImage(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"lastInsertId": lastInsertId,
+	}))
+}
+
+func (i *ImagesController) DeleteImage(c *gin.Context) {
+	imageId := c.Param("image")
+	if imageId == "" {
+		c.JSON(400, utils.Error(1, "参数错误", errors.New("image 参数不为空")))
+		return
+	}
+
+	id, err := strconv.Atoi(imageId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 错误", err))
+		return
+	}
+
+	rowAffected, err := i.ImageService.RemoveImage(id)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowAffected": rowAffected,
+	}))
+}
+
+func (i *ImagesController) UpdateImage(c *gin.Context) {
+	imageId := c.Param("image")
+	if imageId == "" {
+		c.JSON(400, utils.Error(1, "参数错误", errors.New("image 参数不为空")))
+		return
+	}
+
+	id, err := strconv.Atoi(imageId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 参数错误"+err.Error(), err))
+		return
+	}
+
+	req := model.Image{}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, utils.Error(1, "JSON 错误: "+err.Error(), err))
+		return
+	}
+	account, _ := c.Get("account")
+	req.UpdatedBy = account.(string)
+	req.Id = id
+
+	rowAffected, err := i.ImageService.ModifyImage(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowAffected": rowAffected,
 	}))
 }

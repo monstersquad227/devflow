@@ -43,11 +43,7 @@ func (e *EnvRepository) CreateEnv(env model.Env) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
+	return result.LastInsertId()
 }
 
 func (e *EnvRepository) DeleteEnv(id int) (int64, error) {
@@ -58,11 +54,7 @@ func (e *EnvRepository) DeleteEnv(id int) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	row, err := result.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-	return row, nil
+	return result.RowsAffected()
 }
 
 func (e *EnvRepository) UpdateEnv(env model.Env) (int64, error) {
@@ -73,9 +65,5 @@ func (e *EnvRepository) UpdateEnv(env model.Env) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	row, err := result.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-	return row, nil
+	return result.RowsAffected()
 }

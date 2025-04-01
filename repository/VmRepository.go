@@ -50,11 +50,7 @@ func (receiver *VmRepository) UpdateVm(vm model.Vm) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	id, err := result.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
+	return result.RowsAffected()
 }
 
 func (receiver *VmRepository) DeleteVm(id int) (int64, error) {
@@ -64,11 +60,7 @@ func (receiver *VmRepository) DeleteVm(id int) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-	return rowsAffected, nil
+	return result.RowsAffected()
 }
 
 func (receiver *VmRepository) GetVmPasswordById(id int) (string, error) {

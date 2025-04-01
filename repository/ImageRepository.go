@@ -35,6 +35,37 @@ func (i *ImageRepository) GetImagesCount() (int, error) {
 	return count, nil
 }
 
+func (i *ImageRepository) CreateImage(image model.Image) (int64, error) {
+	query := "INSERT " +
+		"INTO image(name, created_by, updated_by) VALUES (?, ?, ?)"
+	result, err := MysqlClient.Exec(query, image.Name, image.CreatedBy, image.UpdatedBy)
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
+}
+
+func (i *ImageRepository) DeleteImage(id int) (int64, error) {
+	query := "UPDATE image " +
+		"SET is_deleted = 1 WHERE id = ?"
+	result, err := MysqlClient.Exec(query, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (i *ImageRepository) UpdateImage(image model.Image) (int64, error) {
+	query := "UPDATE image " +
+		"SET name = ?, updated_by = ? " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, image.Name, image.UpdatedBy, image.Id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 func (i *ImageRepository) GetImageNameById(id int) (string, error) {
 	query := "SELECT name " +
 		"FROM image WHERE id = ?"
