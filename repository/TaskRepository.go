@@ -42,3 +42,36 @@ func (t *TaskRepository) GetTaskNameANDImageIDById(id int) (string, int, error) 
 	}
 	return name, imageId, nil
 }
+
+func (t *TaskRepository) CreateTask(task model.Task) (int64, error) {
+	query := "INSERT " +
+		"INTO task(name, image_id, created_by, updated_by) " +
+		"VALUES (?, ?, ?, ?)"
+	result, err := MysqlClient.Exec(query, task.Name, task.ImageID, task.CreatedBy, task.UpdatedBy)
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
+}
+
+func (t *TaskRepository) UpdateTask(task model.Task) (int64, error) {
+	query := "UPDATE task " +
+		"SET name = ?, image_id = ?, updated_by = ? " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, task.Name, task.ImageID, task.UpdatedBy, task.Id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (t *TaskRepository) DeleteTask(id int) (int64, error) {
+	query := "UPDATE task " +
+		"SET is_deleted = 1 " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

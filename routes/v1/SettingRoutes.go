@@ -35,6 +35,10 @@ func SettingRegister(api *gin.RouterGroup) {
 	api.GET("/setting/images", imageController.GetImages)             // √
 	api.POST("/setting/images", imageController.CreateImage)          // √
 	api.DELETE("/setting/images/:image", imageController.DeleteImage) //√
-	api.PUT("/setting/images/:image", imageController.UpdateImage)
-	api.GET("/setting/tasks", taskController.GetTasks) // √
+	api.PUT("/setting/images/:image", imageController.UpdateImage)    // √
+
+	api.GET("/setting/tasks", taskController.GetTasks)            // √
+	api.POST("/setting/tasks", taskController.CreateTask)         //√
+	api.PUT("/setting/tasks/:task", taskController.UpdateTask)    //√
+	api.DELETE("/setting/tasks/:task", taskController.DeleteTask) // √
 }

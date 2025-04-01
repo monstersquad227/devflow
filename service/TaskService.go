@@ -16,3 +16,14 @@ func (t *TaskService) FetchTasks(pageNumber, pageSize int) ([]*model.Task, error
 func (t *TaskService) FetchTasksCount() (int, error) {
 	return t.TaskRepository.GetTasksCount()
 }
+
+func (t *TaskService) SaveTask(task model.Task) (int64, error) {
+	return t.TaskRepository.CreateTask(task)
+}
+
+func (t *TaskService) ModifyTask(task model.Task) (int64, error) {
+	return t.TaskRepository.UpdateTask(task)
+}
+func (t *TaskService) RemoveTask(id int) (int64, error) {
+	return t.TaskRepository.DeleteTask(id)
+}
