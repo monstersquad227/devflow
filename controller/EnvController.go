@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"devflow/model"
 	"devflow/service"
 	"devflow/utils"
 	"github.com/gin-gonic/gin"
@@ -42,6 +43,75 @@ func (e *EnvController) GetEnvs(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
 		"data":  result,
 		"total": count,
+	}))
+}
+
+func (e *EnvController) CreateEnv(c *gin.Context) {
+	req := model.Env{}
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(400, utils.Error(1, "JSON错误", nil))
+		return
+	}
+	account, _ := c.Get("account")
+	req.CreatedBy = account.(string)
+	req.UpdatedBy = account.(string)
+
+	lastId, err := e.EnvService.SaveEnv(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"lastInsertId": lastId,
+	}))
+}
+
+func (e *EnvController) DeleteEnv(c *gin.Context) {
+	envId := c.Param("env")
+	if envId == "" {
+		c.JSON(400, utils.Error(1, "参数错误: env", nil))
+		return
+	}
+	id, err := strconv.Atoi(envId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
+		return
+	}
+	rowAffected, err := e.EnvService.RemoveEnv(id)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowAffected": rowAffected,
+	}))
+}
+
+func (e *EnvController) UpdateEnv(c *gin.Context) {
+	envId := c.Param("env")
+	req := model.Env{}
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(400, utils.Error(1, "JSON错误: "+err.Error(), err))
+		return
+	}
+
+	id, err := strconv.Atoi(envId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
+		return
+	}
+
+	account, _ := c.Get("account")
+	req.Id = id
+	req.UpdatedBy = account.(string)
+
+	rowAffected, err := e.EnvService.ModifyEnv(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowAffected": rowAffected,
 	}))
 }
 

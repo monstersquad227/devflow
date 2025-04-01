@@ -27,6 +27,9 @@ func SettingRegister(api *gin.RouterGroup) {
 	}
 
 	api.GET("/setting/envs", envController.GetEnvs)                            // √
+	api.POST("/setting/envs", envController.CreateEnv)                         // √
+	api.DELETE("/setting/envs/:env", envController.DeleteEnv)                  // √
+	api.PUT("/setting/envs/:env", envController.UpdateEnv)                     //√
 	api.GET("/setting/envs/:env/namespaces", envController.GetNamespacesByEnv) // √
 	api.GET("/setting/images", imageController.GetImages)                      // √
 	api.GET("/setting/tasks", taskController.GetTasks)                         // √

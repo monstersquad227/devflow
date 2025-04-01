@@ -35,3 +35,47 @@ func (e *EnvRepository) GetEnvsCount() (int, error) {
 	}
 	return count, nil
 }
+
+func (e *EnvRepository) CreateEnv(env model.Env) (int64, error) {
+	query := "INSERT " +
+		"INTO env(name, created_by, updated_by) VALUES (?, ?, ?)"
+	result, err := MysqlClient.Exec(query, env.Name, env.CreatedBy, env.UpdatedBy)
+	if err != nil {
+		return 0, err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func (e *EnvRepository) DeleteEnv(id int) (int64, error) {
+	query := "UPDATE env " +
+		"SET is_deleted = 1 " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, id)
+	if err != nil {
+		return 0, err
+	}
+	row, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return row, nil
+}
+
+func (e *EnvRepository) UpdateEnv(env model.Env) (int64, error) {
+	query := "UPDATE env " +
+		"SET name = ?, updated_by = ? " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, env.Name, env.UpdatedBy, env.Id)
+	if err != nil {
+		return 0, err
+	}
+	row, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return row, nil
+}

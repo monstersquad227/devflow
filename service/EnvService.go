@@ -20,6 +20,18 @@ func (e *EnvService) FetchEnvsCount() (int, error) {
 	return e.EnvRepository.GetEnvsCount()
 }
 
+func (e *EnvService) SaveEnv(env model.Env) (int64, error) {
+	return e.EnvRepository.CreateEnv(env)
+}
+
+func (e *EnvService) RemoveEnv(id int) (int64, error) {
+	return e.EnvRepository.DeleteEnv(id)
+}
+
+func (e *EnvService) ModifyEnv(env model.Env) (int64, error) {
+	return e.EnvRepository.UpdateEnv(env)
+}
+
 func (e *EnvService) FetchNamespacesByEnv(env string) (interface{}, error) {
 	kubeClient, err := utils.KubernetesClient(env + "config")
 	if err != nil {
