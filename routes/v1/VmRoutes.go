@@ -13,9 +13,10 @@ func VmRegister(api *gin.RouterGroup) {
 			VmRepo: &repository.VmRepository{},
 		},
 	}
-	api.GET("/vms", vmController.GetVms)    // √
-	api.POST("/vms", vmController.CreateVm) // √
-	api.DELETE("/vms/:vm", vmController.DeleteVm)
-	api.GET("/vms/:vm/password", vmController.GetVmPasswordById)
-	api.GET("/vms/:vm", vmController.GetVmsByApplication) // √
+	api.GET("/vms", vmController.GetVms)                         // √
+	api.POST("/vms", vmController.CreateVm)                      // √
+	api.PUT("/vms", vmController.UpdateVm)                       // √
+	api.DELETE("/vms/:vm", vmController.DeleteVm)                // √
+	api.GET("/vms/:vm/password", vmController.GetVmPasswordById) // √
+	api.GET("/vms/:vm", vmController.GetVmsByApplication)        // √
 }

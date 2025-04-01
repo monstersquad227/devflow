@@ -8,7 +8,7 @@ import (
 type VmRepository struct{}
 
 func (receiver *VmRepository) GetVms(pageNumber, pageSize int) ([]*model.Vm, error) {
-	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, region, cloud_provider, os, created_at, updated_at " +
+	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, created_at, updated_at " +
 		"FROM vm WHERE is_deleted = 0 LIMIT ? OFFSET ? "
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
 	if err != nil {
@@ -18,7 +18,7 @@ func (receiver *VmRepository) GetVms(pageNumber, pageSize int) ([]*model.Vm, err
 	for rows.Next() {
 		obj := &model.Vm{}
 		if err = rows.Scan(&obj.Id, &obj.InstanceId, &obj.InstanceName, &obj.PrivateIp, &obj.PublicIp, &obj.Spec,
-			&obj.Region, &obj.CloudProvider, &obj.Os, &obj.CreatedAt, &obj.UpdatedAt); err != nil {
+			&obj.Application, &obj.Region, &obj.CloudProvider, &obj.Os, &obj.CreatedAt, &obj.UpdatedAt); err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
@@ -36,6 +36,21 @@ func (receiver *VmRepository) CreateVm(vm model.Vm) (int64, error) {
 		return 0, err
 	}
 	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func (receiver *VmRepository) UpdateVm(vm model.Vm) (int64, error) {
+	query := "UPDATE vm " +
+		"SET instance_name = ?, private_ip = ?, public_ip = ?, spec = ?, application = ?, region = ?, cloud_provider = ?, os = ? " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Application, vm.Region, vm.CloudProvider, vm.Os, vm.Id)
+	if err != nil {
+		return 0, err
+	}
+	id, err := result.RowsAffected()
 	if err != nil {
 		return 0, err
 	}

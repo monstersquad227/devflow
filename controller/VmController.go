@@ -64,6 +64,22 @@ func (v *VmController) CreateVm(c *gin.Context) {
 	}))
 }
 
+func (v *VmController) UpdateVm(c *gin.Context) {
+	var req model.Vm
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, utils.Error(1, "JSON错误: "+err.Error(), err))
+		return
+	}
+	rowAffected, err := v.VmService.ModifyVm(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowAffected": rowAffected,
+	}))
+}
+
 func (v *VmController) DeleteVm(c *gin.Context) {
 	vmId := c.Param("vm")
 	if vmId == "" {

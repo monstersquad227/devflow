@@ -32,6 +32,10 @@ func (service *VmService) SaveVm(vm model.Vm) (int64, error) {
 	return service.VmRepo.CreateVm(vm)
 }
 
+func (service *VmService) ModifyVm(vm model.Vm) (int64, error) {
+	return service.VmRepo.UpdateVm(vm)
+}
+
 func (service *VmService) RemoveVm(id int) (int64, error) {
 	return service.VmRepo.DeleteVm(id)
 }
