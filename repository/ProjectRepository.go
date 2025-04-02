@@ -88,7 +88,7 @@ func (r *ProjectRepository) UpdateProject(project model.Project) (int64, error) 
 	query := "UPDATE project " +
 		"SET deployment_name = ?, gitlab_id = ?, gitlab_repo = ?, task_id = ?, project_build_path = ?, project_package_name = ? " +
 		"WHERE id = ?"
-	result, err := MysqlClient.Exec(query, project.GitlabID, project.GitlabRepo, project.TaskID, project.ProjectBuildPath, project.ProjectPackageName, project.ID)
+	result, err := MysqlClient.Exec(query, project.DeploymentName, project.GitlabID, project.GitlabRepo, project.TaskID, project.ProjectBuildPath, project.ProjectPackageName, project.ID)
 	if err != nil {
 		return 0, err
 	}
