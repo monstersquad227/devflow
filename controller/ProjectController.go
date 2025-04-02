@@ -112,19 +112,25 @@ Body:
 */
 
 func (controller *ProjectController) UpdateProject(c *gin.Context) {
+	projectId := c.Param("project")
+	if projectId == "" {
+		c.JSON(400, utils.Error(1, "参数错误", errors.New("project 参数不为空")))
+		return
+	}
+
 	var req model.Project
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, utils.Error(1, "参数错误", err))
+		c.JSON(400, utils.Error(1, "JSON错误", err))
 		return
 	}
 
 	result, err := controller.Service.ModifyProject(req)
 	if err != nil {
-		c.JSON(500, utils.Error(1, "内部错误", err))
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
 	c.JSON(http.StatusOK, utils.Success(map[string]int64{
-		"rowsAffected": result,
+		"rowAffected": result,
 	}))
 }
 
