@@ -19,7 +19,7 @@ func (controller *UserController) UserLogin(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&userReq); err != nil {
-		c.JSON(400, utils.Error(1, "参数错误", err))
+		c.JSON(400, utils.Error(1, "参数错误: "+err.Error(), err))
 		return
 	}
 
@@ -37,7 +37,7 @@ func (controller *UserController) UserLogin(c *gin.Context) {
 
 	token, info, err := controller.Service.UserLogin(string(account), string(password))
 	if err != nil {
-		c.JSON(400, utils.Error(1, "登录失败", err))
+		c.JSON(500, utils.Error(1, "登录失败: "+err.Error(), err))
 		return
 	}
 
