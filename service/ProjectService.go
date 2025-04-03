@@ -152,7 +152,7 @@ func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int)
 	}
 
 	// 保存构建记录
-	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), params.CreatedBy, projectID, jobBuild[0].Number+1)
+	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), params.CreatedBy, taskName, projectID, jobBuild[0].Number+1)
 }
 
 //func (s *ProjectService) BuildProject(params model.BuildParams, createBy string, projectID int) (int64, error) {

@@ -15,7 +15,7 @@ func ProjectRegister(api *gin.RouterGroup) {
 	}
 
 	api.GET("/projects", projectController.GetProjects)                                          // 获取所有项目 √
-	api.GET("/projects/:project/builds/details", projectController.GetBuildDetails)              // 获取项目构建详情
+	api.GET("/projects/:project/builds/details", projectController.GetBuildDetails)              // 获取项目构建详情 √
 	api.GET("/projects/:project/branches", projectController.GetBranches)                        // 获取单个项目所有分支 √
 	api.GET("/projects/:project/branches/:branch/details", projectController.GetBranchesDetails) // 获取项目分支的详细信息 √
 	api.GET("/projects/build/status", projectController.GetBuildStatus)                          // 获取所有项目构建状态

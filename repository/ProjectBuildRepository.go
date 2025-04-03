@@ -34,19 +34,15 @@ func (p *ProjectBuildRepository) GetProjectIdByStatus() (interface{}, error) {
 CreateProjectBuild 创建 project_build 记录
 */
 
-func (p *ProjectBuildRepository) CreateProjectBuild(params, createBy string, projectID int, jenkinsID int64) (int64, error) {
+func (p *ProjectBuildRepository) CreateProjectBuild(params, createBy, taskName string, projectID int, jenkinsID int64) (int64, error) {
 	query := "INSERT " +
-		"INTO project_build (project_id, jenkins_id, build_status, build_params, create_by) " +
+		"INTO project_build (project_id, jenkins_id, task_name, build_status, build_params, create_by) " +
 		"VALUES(?, ?, ?, ?, ?)"
-	result, err := MysqlClient.Exec(query, projectID, jenkinsID, "ING", params, createBy)
+	result, err := MysqlClient.Exec(query, projectID, jenkinsID, taskName, "ING", params, createBy)
 	if err != nil {
 		return 0, err
 	}
-	lastID, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-	return lastID, nil
+	return result.LastInsertId()
 }
 
 /*
@@ -74,7 +70,7 @@ GetProjectBuildByProjectId 通过 project_id 获取 project_build 记录
 */
 
 func (p *ProjectBuildRepository) GetProjectBuildByProjectId(projectID int) (interface{}, error) {
-	query := "SELECT id, jenkins_id, build_status, build_params, create_by, create_time, update_time " +
+	query := "SELECT id, jenkins_id, task_name, build_status, build_params, create_by, create_time, update_time " +
 		"FROM project_build " +
 		"WHERE project_id = ?"
 	rows, err := MysqlClient.Query(query, projectID)
@@ -84,7 +80,7 @@ func (p *ProjectBuildRepository) GetProjectBuildByProjectId(projectID int) (inte
 	data := make([]*model.ProjectBuild, 0)
 	for rows.Next() {
 		obj := model.ProjectBuild{}
-		err = rows.Scan(&obj.Id, &obj.JenkinsId, &obj.BuildStatus, &obj.BuildParams, &obj.CreateBy, &obj.CreateTime, &obj.UpdateTime)
+		err = rows.Scan(&obj.Id, &obj.JenkinsId, &obj.TaskName, &obj.BuildStatus, &obj.BuildParams, &obj.CreateBy, &obj.CreateTime, &obj.UpdateTime)
 		if err != nil {
 			return nil, err
 		}
