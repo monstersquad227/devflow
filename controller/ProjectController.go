@@ -253,7 +253,16 @@ func (controller *ProjectController) GetBuildDetails(c *gin.Context) {
 		c.JSON(500, utils.Error(1, "内部错误", err))
 		return
 	}
-	c.JSON(http.StatusOK, utils.Success(result))
+
+	count, err := controller.Service.GetBuildDetailsCount(pid)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"total": count,
+		"data":  result,
+	}))
 }
 
 /*

@@ -271,6 +271,10 @@ func (s *ProjectService) GetBuildDetails(projectId int) (interface{}, error) {
 	return s.ProjectBuildRepo.GetProjectBuildByProjectId(projectId)
 }
 
+func (s *ProjectService) GetBuildDetailsCount(projectId int) (interface{}, error) {
+	return s.ProjectBuildRepo.GetProjectBuildCountByProjectId(projectId)
+}
+
 /*
 ModifyProjectBuildStatus 修改项目构建状态逻辑
 */

@@ -92,3 +92,14 @@ func (p *ProjectBuildRepository) GetProjectBuildByProjectId(projectID int) (inte
 	}
 	return data, nil
 }
+
+func (p *ProjectBuildRepository) GetProjectBuildCountByProjectId(projectId int) (int, error) {
+	query := "SELECT COUNT(id) " +
+		"FROM project_build WHERE project_id = ?"
+	var count int
+	err := MysqlClient.QueryRow(query, projectId).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
