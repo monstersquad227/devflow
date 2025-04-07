@@ -72,7 +72,7 @@ GetProjectBuildByProjectId 通过 project_id 获取 project_build 记录
 func (p *ProjectBuildRepository) GetProjectBuildByProjectId(projectID int) (interface{}, error) {
 	query := "SELECT id, jenkins_id, task_name, build_status, build_params, create_by, create_time, update_time " +
 		"FROM project_build " +
-		"WHERE project_id = ?"
+		"WHERE project_id = ? ORDER BY id DESC"
 	rows, err := MysqlClient.Query(query, projectID)
 	if err != nil {
 		return nil, err
