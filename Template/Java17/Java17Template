@@ -34,7 +34,11 @@ pipeline {
         stage('Compile') {
             steps {
                 sh """
-                    ${command}
+                    ${command} \
+                    -Dsonar.projectKey=${gitlab_name} \
+                    -Dsonar.projectName=${gitlab_name} \
+                    -Dsonar.host.url=http://192.168.1.208:9000 \
+                    -Dsonar.token=sqp_7aa43baf5663b61d9cd2083ab23f5e858c9b64c8
                 """
             }
         }
