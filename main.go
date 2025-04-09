@@ -38,6 +38,8 @@ func main() {
 	v1.VmRegister(baseRouter)
 	v1.SettingRegister(baseRouter)
 
+	v1.KongRegister(baseRouter)
+
 	// 启动服务
 	err := Application.Run(":" + config.GlobalConfig.Application.Port)
 	if err != nil {
