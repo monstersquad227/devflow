@@ -22,21 +22,22 @@ type ProjectServiceInterface interface {
 	FetchProjectsTags(projectName, env string) (interface{}, error)
 }
 
+type VmServiceInterface interface {
+	List(pageNumber, pageSize int) ([]*model.Vm, error)
+	Count() (int, error)
+	Create(vm model.Vm) (int64, error)
+	Update(vm model.Vm) (int64, error)
+	Delete(id int) (int64, error)
+	FetchVmPasswordById(id int) (string, error)
+	FetchVmsByApplication(application string) (interface{}, error)
+}
+
 type ImageServiceInterface interface {
 	Fetch(pageNumber, pageSize int) ([]*model.Image, error)
 	FetchImagesCount() (int, error)
 	SaveImage(image model.Image) (int64, error)
 	RemoveImage(id int) (int64, error)
 	ModifyImage(image model.Image) (int64, error)
-}
-
-type VmServiceInterface interface {
-	Fetch(pageNumber, pageSize int) ([]*model.Vm, int, error)
-	SaveVm(vm model.Vm) (int64, error)
-	ModifyVm(vm model.Vm) (int64, error)
-	RemoveVm(id int) (int64, error)
-	FetchVmPasswordById(id int) (string, error)
-	FetchVmsByApplication(application string) (interface{}, error)
 }
 
 type EnvServiceInterface interface {

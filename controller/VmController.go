@@ -15,7 +15,7 @@ type VmController struct {
 	VmService service.VmServiceInterface
 }
 
-func (v *VmController) GetVms(c *gin.Context) {
+func (v *VmController) ListVms(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -29,11 +29,17 @@ func (v *VmController) GetVms(c *gin.Context) {
 		c.JSON(400, utils.Error(1, "pageSize错误", err))
 		return
 	}
-	data, count, err := v.VmService.Fetch(pageNumber, pageSize)
+	data, err := v.VmService.List(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败", err))
 		return
 	}
+	count, err := v.VmService.Count()
+	if err != nil {
+		c.JSON(500, utils.Error(1, "查询失败", err))
+		return
+	}
+
 	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
 		"data":  data,
 		"total": count,
@@ -54,7 +60,7 @@ func (v *VmController) CreateVm(c *gin.Context) {
 	}
 	req.Password = string(password)
 
-	lastId, err := v.VmService.SaveVm(req)
+	lastId, err := v.VmService.Create(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -70,7 +76,7 @@ func (v *VmController) UpdateVm(c *gin.Context) {
 		c.JSON(400, utils.Error(1, "JSON错误: "+err.Error(), err))
 		return
 	}
-	rowAffected, err := v.VmService.ModifyVm(req)
+	rowAffected, err := v.VmService.Update(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -91,7 +97,7 @@ func (v *VmController) DeleteVm(c *gin.Context) {
 		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
 		return
 	}
-	affectedId, err := v.VmService.RemoveVm(id)
+	affectedId, err := v.VmService.Delete(id)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误"+err.Error(), err))
 		return

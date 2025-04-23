@@ -32,7 +32,7 @@ func SettingRegister(api *gin.RouterGroup) {
 	api.DELETE("/setting/envs/:env", envController.DeleteEnv)
 	api.GET("/setting/envs/:env/namespaces", envController.GetNamespacesByEnv)
 
-	api.GET("/setting/images", imageController.GetImages)             // √
+	api.GET("/setting/images", imageController.ListImages)            // √
 	api.POST("/setting/images", imageController.CreateImage)          // √
 	api.DELETE("/setting/images/:image", imageController.DeleteImage) //√
 	api.PUT("/setting/images/:image", imageController.UpdateImage)    // √
