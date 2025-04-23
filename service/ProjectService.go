@@ -29,39 +29,15 @@ type ProjectService struct {
 	ImageRepo        *repository.ImageRepository
 }
 
-/*
-FetchProjects 获取项目逻辑
-*/
-
-func (s *ProjectService) FetchProjects(pageNumber, pageSize int) ([]*model.Project, error) {
-	return s.Repo.GetProjects(pageNumber, pageSize)
+func (s *ProjectService) List(pageNumber, pageSize int) ([]*model.Project, error) {
+	return s.Repo.ListProjects(pageNumber, pageSize)
 }
 
-func (s *ProjectService) FetchProjectsCount() (int, error) {
-	return s.Repo.GetProjectsCount()
+func (s *ProjectService) Count() (int, error) {
+	return s.Repo.CountProjects()
 }
 
-/*
-RemoveProject 删除项目逻辑
-*/
-
-func (s *ProjectService) RemoveProject(id int) (int64, error) {
-	return s.Repo.DeleteProject(id)
-}
-
-/*
-ModifyProject 修改项目逻辑
-*/
-
-func (s *ProjectService) ModifyProject(project model.Project) (int64, error) {
-	return s.Repo.UpdateProject(project)
-}
-
-/*
-SaveProject 保存项目逻辑
-*/
-
-func (s *ProjectService) SaveProject(project model.Project) (int64, error) {
+func (s *ProjectService) Create(project model.Project) (int64, error) {
 	projects, _, err := GitlabClient.Search.Projects(project.GitlabName, &gitlab.SearchOptions{})
 	if err != nil {
 		return 0, err
@@ -83,11 +59,15 @@ func (s *ProjectService) SaveProject(project model.Project) (int64, error) {
 	return s.Repo.CreateProject(project)
 }
 
-/*
-FetchBranches 获取项目分支逻辑
-*/
+func (s *ProjectService) Update(project model.Project) (int64, error) {
+	return s.Repo.UpdateProject(project)
+}
 
-func (s *ProjectService) FetchBranches(gitlabId int) ([]*gitlab.Branch, error) {
+func (s *ProjectService) Delete(id int) (int64, error) {
+	return s.Repo.DeleteProject(id)
+}
+
+func (s *ProjectService) ListBranches(gitlabId int) ([]*gitlab.Branch, error) {
 	branches, _, err := GitlabClient.Branches.ListBranches(gitlabId, &gitlab.ListBranchesOptions{})
 	if err != nil {
 		return nil, err
@@ -95,7 +75,7 @@ func (s *ProjectService) FetchBranches(gitlabId int) ([]*gitlab.Branch, error) {
 	return branches, nil
 }
 
-func (s *ProjectService) FetchBranchesDetails(gitlabId int, branch string) (*gitlab.Branch, error) {
+func (s *ProjectService) ListBranchesDetails(gitlabId int, branch string) (*gitlab.Branch, error) {
 	b, _, err := GitlabClient.Branches.GetBranch(gitlabId, branch)
 	if err != nil {
 		return nil, err
@@ -104,11 +84,7 @@ func (s *ProjectService) FetchBranchesDetails(gitlabId int, branch string) (*git
 
 }
 
-/*
-BuildProject 构建项目逻辑
-*/
-
-func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int) (int64, error) {
+func (s *ProjectService) Build(params model.BuildParams, projectID int) (int64, error) {
 	// 模版名称
 	taskId, err := strconv.Atoi(params.TaskID)
 	if err != nil {
@@ -155,39 +131,7 @@ func (s *ProjectService) BuildProjectV2(params model.BuildParams, projectID int)
 	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), params.CreatedBy, taskName, projectID, jobBuild[0].Number+1)
 }
 
-//func (s *ProjectService) BuildProject(params model.BuildParams, createBy string, projectID int) (int64, error) {
-//	buildTemplateID, err := s.Repo.GetBuildTemplateIDByID(projectID)
-//	if err != nil {
-//		return 0, err
-//	}
-//	buildTemplateName, _, err := s.BuildTemplateRepo.GetNameByID(buildTemplateID)
-//	if err != nil {
-//		return 0, err
-//	}
-//
-//	paramsJson, err := json.Marshal(params)
-//	if err != nil {
-//		return 0, err
-//	}
-//
-//	var paramsMap map[string]string
-//	err = json.Unmarshal(paramsJson, &paramsMap)
-//	if err != nil {
-//		return 0, err
-//	}
-//
-//	job, err := JenkinsClient.BuildJob(context.Background(), buildTemplateName, paramsMap)
-//	if err != nil {
-//		return 0, err
-//	}
-//	return s.ProjectBuildRepo.CreateProjectBuild(string(paramsJson), createBy, projectID, job+1)
-//}
-
-/*
-DeployProject 发布项目逻辑
-*/
-
-func (s *ProjectService) DeployProject(r model.ProjectDeploy) (interface{}, error) {
+func (s *ProjectService) Deploy(r model.ProjectDeploy) (interface{}, error) {
 	image := config.GlobalConfig.Harbor.URL + "/" + r.Env + "/" + r.Name + ":" + r.Tag
 
 	if r.PublishType == "kubernetes" {
@@ -263,23 +207,19 @@ func (s *ProjectService) DeployProject(r model.ProjectDeploy) (interface{}, erro
 	return nil, errors.New("选择合适的发布方式")
 }
 
-/*
-GetBuildDetails 获取项目构建详情逻辑
-*/
-
-func (s *ProjectService) GetBuildDetails(projectId int) (interface{}, error) {
+func (s *ProjectService) ListBuildDetails(projectId int) (interface{}, error) {
 	return s.ProjectBuildRepo.GetProjectBuildByProjectId(projectId)
 }
 
-func (s *ProjectService) GetBuildDetailsCount(projectId int) (int, error) {
+func (s *ProjectService) CountBuildDetails(projectId int) (int, error) {
 	return s.ProjectBuildRepo.GetProjectBuildCountByProjectId(projectId)
 }
 
-/*
-ModifyProjectBuildStatus 修改项目构建状态逻辑
-*/
+func (s *ProjectService) ListBuildStatus() ([]int, error) {
+	return s.ProjectBuildRepo.GetProjectIdByStatus()
+}
 
-func (s *ProjectService) ModifyProjectBuildStatus(deploymentName, status string, jobId int) (int64, error) {
+func (s *ProjectService) UpdateBuildStatus(deploymentName, status string, jobId int) (int64, error) {
 	projectId, err := s.Repo.GetIdByDeploymentName(deploymentName)
 	if err != nil {
 		return 0, err
@@ -288,19 +228,7 @@ func (s *ProjectService) ModifyProjectBuildStatus(deploymentName, status string,
 	return s.ProjectBuildRepo.UpdateBuildStatus(projectId, jobId, status)
 }
 
-/*
-GetBuildStatus 获取构建状态逻辑
-*/
-
-func (s *ProjectService) GetBuildStatus() ([]int, error) {
-	return s.ProjectBuildRepo.GetProjectIdByStatus()
-}
-
-/*
-FetchProjectsTags 获取所有项目版本逻辑
-*/
-
-func (s *ProjectService) FetchProjectsTags(projectName, env string) (interface{}, error) {
+func (s *ProjectService) ListProjectImageTags(projectName, env string) (interface{}, error) {
 	url := config.GlobalConfig.Harbor.URL + "/api/repositories/" + env + "%2F" + projectName + "/tags?detail=false"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
