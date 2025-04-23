@@ -32,17 +32,6 @@ func (t *TaskRepository) CountTasks() (int, error) {
 	return count, nil
 }
 
-func (t *TaskRepository) GetTaskNameANDImageIDById(id int) (string, int, error) {
-	query := "SELECT name, image_id " +
-		"FROM task WHERE id = ?"
-	var name string
-	var imageId int
-	if err := MysqlClient.QueryRow(query, id).Scan(&name, &imageId); err != nil {
-		return "", 0, err
-	}
-	return name, imageId, nil
-}
-
 func (t *TaskRepository) CreateTask(task model.Task) (int64, error) {
 	query := "INSERT " +
 		"INTO task(name, image_id, created_by, updated_by) " +
@@ -74,4 +63,15 @@ func (t *TaskRepository) DeleteTask(id int) (int64, error) {
 		return 0, err
 	}
 	return result.RowsAffected()
+}
+
+func (t *TaskRepository) GetTaskNameANDImageIDById(id int) (string, int, error) {
+	query := "SELECT name, image_id " +
+		"FROM task WHERE id = ?"
+	var name string
+	var imageId int
+	if err := MysqlClient.QueryRow(query, id).Scan(&name, &imageId); err != nil {
+		return "", 0, err
+	}
+	return name, imageId, nil
 }

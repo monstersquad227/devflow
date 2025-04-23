@@ -40,12 +40,12 @@ type VmServiceInterface interface {
 }
 
 type EnvServiceInterface interface {
-	Fetch(pageNumber, pageSize int) ([]*model.Env, error)
-	FetchEnvsCount() (int, error)
-	SaveEnv(env model.Env) (int64, error)
-	RemoveEnv(id int) (int64, error)
-	ModifyEnv(env model.Env) (int64, error)
-	FetchNamespacesByEnv(env string) (interface{}, error)
+	List(pageNumber, pageSize int) ([]*model.Env, error)
+	Count() (int, error)
+	Create(env model.Env) (int64, error)
+	Update(env model.Env) (int64, error)
+	Delete(id int) (int64, error)
+	GetNsByEnv(env string) (interface{}, error)
 }
 
 type TaskServiceInterface interface {

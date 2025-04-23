@@ -26,20 +26,19 @@ func SettingRegister(api *gin.RouterGroup) {
 		},
 	}
 
-	//api.GET("/setting/envs", envController.GetEnvs)                            // √
-	api.GET("/setting/envs", envController.Get)                                // √
-	api.POST("/setting/envs", envController.CreateEnv)                         // √
-	api.DELETE("/setting/envs/:env", envController.DeleteEnv)                  // √
-	api.PUT("/setting/envs/:env", envController.UpdateEnv)                     //√
-	api.GET("/setting/envs/:env/namespaces", envController.GetNamespacesByEnv) // √
+	api.GET("/setting/envs", envController.ListEnvs)
+	api.POST("/setting/envs", envController.CreateEnv)
+	api.PUT("/setting/envs/:env", envController.UpdateEnv)
+	api.DELETE("/setting/envs/:env", envController.DeleteEnv)
+	api.GET("/setting/envs/:env/namespaces", envController.GetNamespacesByEnv)
 
 	api.GET("/setting/images", imageController.GetImages)             // √
 	api.POST("/setting/images", imageController.CreateImage)          // √
 	api.DELETE("/setting/images/:image", imageController.DeleteImage) //√
 	api.PUT("/setting/images/:image", imageController.UpdateImage)    // √
 
-	api.GET("/setting/tasks", taskController.ListTasks)           // √
-	api.POST("/setting/tasks", taskController.CreateTask)         //√
-	api.PUT("/setting/tasks/:task", taskController.UpdateTask)    //√
-	api.DELETE("/setting/tasks/:task", taskController.DeleteTask) // √
+	api.GET("/setting/tasks", taskController.ListTasks)
+	api.POST("/setting/tasks", taskController.CreateTask)
+	api.PUT("/setting/tasks/:task", taskController.UpdateTask)
+	api.DELETE("/setting/tasks/:task", taskController.DeleteTask)
 }
