@@ -7,11 +7,7 @@ import (
 
 type ProjectRepository struct{}
 
-/*
-GetProjects 获取 project 记录，分页
-*/
-
-func (r *ProjectRepository) GetProjects(pageNumber, pageSize int) (interface{}, error) {
+func (r *ProjectRepository) ListProjects(pageNumber, pageSize int) ([]*model.Project, error) {
 	query := "SELECT id, gitlab_name, deployment_name, gitlab_id, gitlab_repo, task_id, " +
 		"project_build_path, project_package_name, description " +
 		"FROM project WHERE is_deleted = 0 LIMIT ? OFFSET ? "
@@ -37,7 +33,7 @@ func (r *ProjectRepository) GetProjects(pageNumber, pageSize int) (interface{}, 
 	return data, nil
 }
 
-func (r *ProjectRepository) GetProjectsCount() (int, error) {
+func (r *ProjectRepository) CountProjects() (int, error) {
 	query := "SELECT count(id) " +
 		"FROM project WHERE is_deleted = 0"
 	var count int
@@ -47,57 +43,6 @@ func (r *ProjectRepository) GetProjectsCount() (int, error) {
 	}
 	return count, nil
 }
-
-/*
-GetIdByDeploymentName 通过 deployment_name 获取 id
-*/
-
-func (r *ProjectRepository) GetIdByDeploymentName(name string) (int, error) {
-	var id int
-	query := "SELECT id " +
-		"FROM project WHERE deployment_name = ?"
-	if err := MysqlClient.QueryRow(query, name).Scan(&id); err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
-/*
-DeleteProject 通过 id 删除 project 记录
-*/
-
-func (r *ProjectRepository) DeleteProject(id int) (int64, error) {
-	query := "UPDATE project " +
-		"set is_deleted = 1 WHERE id = ?"
-	result, err := MysqlClient.Exec(query, id)
-	if err != nil {
-		return 0, err
-	}
-	rowAffected, err := result.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-	return rowAffected, err
-}
-
-/*
-UpdateProject 更新 project 记录: gitlab_id, gitlab_repo, build_template_id, project_build_path, project_package_name
-*/
-
-func (r *ProjectRepository) UpdateProject(project model.Project) (int64, error) {
-	query := "UPDATE project " +
-		"SET deployment_name = ?, gitlab_id = ?, gitlab_repo = ?, task_id = ?, project_build_path = ?, project_package_name = ? " +
-		"WHERE id = ?"
-	result, err := MysqlClient.Exec(query, project.DeploymentName, project.GitlabID, project.GitlabRepo, project.TaskID, project.ProjectBuildPath, project.ProjectPackageName, project.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
-/*
-CreateProject 创建 project 记录
-*/
 
 func (r *ProjectRepository) CreateProject(project model.Project) (int64, error) {
 	query := "INSERT " +
@@ -118,10 +63,6 @@ func (r *ProjectRepository) CreateProject(project model.Project) (int64, error) 
 	return lastId, nil
 }
 
-/*
-ExistDeploymentName 通过 deployment_name 判断记录是否存在
-*/
-
 func (r *ProjectRepository) ExistDeploymentName(name string) bool {
 	var total int
 	query := "SELECT COUNT(deployment_name) " +
@@ -137,9 +78,40 @@ func (r *ProjectRepository) ExistDeploymentName(name string) bool {
 	return false
 }
 
-/*
-GetBuildTemplateIDByID 通过 id 获取 build_template_id
-*/
+func (r *ProjectRepository) UpdateProject(project model.Project) (int64, error) {
+	query := "UPDATE project " +
+		"SET deployment_name = ?, gitlab_id = ?, gitlab_repo = ?, task_id = ?, project_build_path = ?, project_package_name = ? " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, project.DeploymentName, project.GitlabID, project.GitlabRepo, project.TaskID, project.ProjectBuildPath, project.ProjectPackageName, project.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (r *ProjectRepository) DeleteProject(id int) (int64, error) {
+	query := "UPDATE project " +
+		"set is_deleted = 1 WHERE id = ?"
+	result, err := MysqlClient.Exec(query, id)
+	if err != nil {
+		return 0, err
+	}
+	rowAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return rowAffected, err
+}
+
+func (r *ProjectRepository) GetIdByDeploymentName(name string) (int, error) {
+	var id int
+	query := "SELECT id " +
+		"FROM project WHERE deployment_name = ?"
+	if err := MysqlClient.QueryRow(query, name).Scan(&id); err != nil {
+		return 0, err
+	}
+	return id, nil
+}
 
 func (r *ProjectRepository) GetBuildTemplateIDByID(id int) (int, error) {
 	var buildTemplateID int

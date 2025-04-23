@@ -11,7 +11,7 @@ type ProjectBuildRepository struct {
 GetProjectIdByStatus 获取 ING 状态的项目
 */
 
-func (p *ProjectBuildRepository) GetProjectIdByStatus() (interface{}, error) {
+func (p *ProjectBuildRepository) GetProjectIdByStatus() ([]int, error) {
 	query := "SELECT project_id " +
 		"FROM project_build WHERE build_status = 'ING'"
 	rows, err := MysqlClient.Query(query)

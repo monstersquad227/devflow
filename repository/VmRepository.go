@@ -7,7 +7,7 @@ import (
 
 type VmRepository struct{}
 
-func (receiver *VmRepository) GetVms(pageNumber, pageSize int) ([]*model.Vm, error) {
+func (receiver *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error) {
 	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, created_at, updated_at " +
 		"FROM vm WHERE is_deleted = 0 LIMIT ? OFFSET ? "
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
@@ -27,11 +27,21 @@ func (receiver *VmRepository) GetVms(pageNumber, pageSize int) ([]*model.Vm, err
 	return data, nil
 }
 
+func (receiver *VmRepository) CountVms() (int, error) {
+	query := "SELECT count(id) " +
+		"FROM vm WHERE is_deleted = 0 "
+	var count int
+	if err := MysqlClient.QueryRow(query).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (receiver *VmRepository) CreateVm(vm model.Vm) (int64, error) {
 	query := "INSERT " +
-		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, region, cloud_provider, os, password) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Region, vm.CloudProvider, vm.Os, vm.Password)
+		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, password) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Application, vm.Region, vm.CloudProvider, vm.Os, vm.Password)
 	if err != nil {
 		return 0, err
 	}
@@ -71,16 +81,6 @@ func (receiver *VmRepository) GetVmPasswordById(id int) (string, error) {
 		return "", err
 	}
 	return password, nil
-}
-
-func (receiver *VmRepository) GetVmsCount() (int, error) {
-	query := "SELECT count(id) " +
-		"FROM vm WHERE is_deleted = 0 "
-	var count int
-	if err := MysqlClient.QueryRow(query).Scan(&count); err != nil {
-		return 0, err
-	}
-	return count, nil
 }
 
 func (receiver *VmRepository) GetVmsByApplication(application string) (interface{}, error) {

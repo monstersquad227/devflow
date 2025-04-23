@@ -4,7 +4,7 @@ import "devflow/model"
 
 type ImageRepository struct{}
 
-func (i *ImageRepository) GetImages(pageNumber, pageSize int) ([]*model.Image, error) {
+func (i *ImageRepository) ListImages(pageNumber, pageSize int) ([]*model.Image, error) {
 	query := "SELECT id, name, created_by, updated_by, created_at, updated_at " +
 		"FROM image WHERE is_deleted = 0 LIMIT ? OFFSET ? "
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
@@ -25,7 +25,7 @@ func (i *ImageRepository) GetImages(pageNumber, pageSize int) ([]*model.Image, e
 	return data, nil
 }
 
-func (i *ImageRepository) GetImagesCount() (int, error) {
+func (i *ImageRepository) CountImages() (int, error) {
 	query := "SELECT count(id) " +
 		"FROM image WHERE is_deleted = 0"
 	var count int
@@ -45,21 +45,21 @@ func (i *ImageRepository) CreateImage(image model.Image) (int64, error) {
 	return result.LastInsertId()
 }
 
-func (i *ImageRepository) DeleteImage(id int) (int64, error) {
+func (i *ImageRepository) UpdateImage(image model.Image) (int64, error) {
 	query := "UPDATE image " +
-		"SET is_deleted = 1 WHERE id = ?"
-	result, err := MysqlClient.Exec(query, id)
+		"SET name = ?, updated_by = ? " +
+		"WHERE id = ?"
+	result, err := MysqlClient.Exec(query, image.Name, image.UpdatedBy, image.Id)
 	if err != nil {
 		return 0, err
 	}
 	return result.RowsAffected()
 }
 
-func (i *ImageRepository) UpdateImage(image model.Image) (int64, error) {
+func (i *ImageRepository) DeleteImage(id int) (int64, error) {
 	query := "UPDATE image " +
-		"SET name = ?, updated_by = ? " +
-		"WHERE id = ?"
-	result, err := MysqlClient.Exec(query, image.Name, image.UpdatedBy, image.Id)
+		"SET is_deleted = 1 WHERE id = ?"
+	result, err := MysqlClient.Exec(query, id)
 	if err != nil {
 		return 0, err
 	}

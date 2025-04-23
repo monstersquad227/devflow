@@ -12,27 +12,27 @@ type EnvService struct {
 	EnvRepository *repository.EnvRepository
 }
 
-func (e *EnvService) FetchEnvs(pageNumber, pageSize int) ([]*model.Env, error) {
-	return e.EnvRepository.GetEnvs(pageNumber, pageSize)
+func (e *EnvService) List(pageNumber, pageSize int) ([]*model.Env, error) {
+	return e.EnvRepository.ListEnvs(pageNumber, pageSize)
 }
 
-func (e *EnvService) FetchEnvsCount() (int, error) {
-	return e.EnvRepository.GetEnvsCount()
+func (e *EnvService) Count() (int, error) {
+	return e.EnvRepository.CountEnvs()
 }
 
-func (e *EnvService) SaveEnv(env model.Env) (int64, error) {
+func (e *EnvService) Create(env model.Env) (int64, error) {
 	return e.EnvRepository.CreateEnv(env)
 }
 
-func (e *EnvService) RemoveEnv(id int) (int64, error) {
-	return e.EnvRepository.DeleteEnv(id)
-}
-
-func (e *EnvService) ModifyEnv(env model.Env) (int64, error) {
+func (e *EnvService) Update(env model.Env) (int64, error) {
 	return e.EnvRepository.UpdateEnv(env)
 }
 
-func (e *EnvService) FetchNamespacesByEnv(env string) (interface{}, error) {
+func (e *EnvService) Delete(id int) (int64, error) {
+	return e.EnvRepository.DeleteEnv(id)
+}
+
+func (e *EnvService) GetNsByEnv(env string) (interface{}, error) {
 	kubeClient, err := utils.KubernetesClient(env + "config")
 	if err != nil {
 		return nil, err

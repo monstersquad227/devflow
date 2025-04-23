@@ -11,10 +11,10 @@ import (
 )
 
 type TaskController struct {
-	TaskService *service.TaskService
+	TaskService service.TaskServiceInterface
 }
 
-func (t *TaskController) GetTasks(c *gin.Context) {
+func (t *TaskController) ListTasks(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -29,12 +29,12 @@ func (t *TaskController) GetTasks(c *gin.Context) {
 		return
 	}
 
-	result, err := t.TaskService.FetchTasks(pageNumber, pageSize)
+	result, err := t.TaskService.List(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询错误"+err.Error(), err))
 		return
 	}
-	count, err := t.TaskService.FetchTasksCount()
+	count, err := t.TaskService.Count()
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询错误"+err.Error(), err))
 		return
@@ -57,7 +57,7 @@ func (t *TaskController) CreateTask(c *gin.Context) {
 	req.CreatedBy = account.(string)
 	req.UpdatedBy = account.(string)
 
-	latestInsertId, err := t.TaskService.SaveTask(req)
+	latestInsertId, err := t.TaskService.Create(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -83,7 +83,7 @@ func (t *TaskController) UpdateTask(c *gin.Context) {
 
 	account, _ := c.Get("account")
 	req.UpdatedBy = account.(string)
-	rowAffected, err := t.TaskService.ModifyTask(req)
+	rowAffected, err := t.TaskService.Update(req)
 
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
@@ -108,7 +108,7 @@ func (t *TaskController) DeleteTask(c *gin.Context) {
 		return
 	}
 
-	rowAffected, err := t.TaskService.RemoveTask(id)
+	rowAffected, err := t.TaskService.Delete(id)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return

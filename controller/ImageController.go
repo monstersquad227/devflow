@@ -11,10 +11,10 @@ import (
 )
 
 type ImagesController struct {
-	ImageService *service.ImageService
+	ImageService service.ImageServiceInterface
 }
 
-func (i *ImagesController) GetImages(c *gin.Context) {
+func (i *ImagesController) ListImages(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -29,12 +29,12 @@ func (i *ImagesController) GetImages(c *gin.Context) {
 		return
 	}
 
-	result, err := i.ImageService.FetchImages(pageNumber, pageSize)
+	result, err := i.ImageService.List(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
-	count, err := i.ImageService.FetchImagesCount()
+	count, err := i.ImageService.Count()
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -55,36 +55,13 @@ func (i *ImagesController) CreateImage(c *gin.Context) {
 	req.CreatedBy = account.(string)
 	req.UpdatedBy = account.(string)
 
-	lastInsertId, err := i.ImageService.SaveImage(req)
+	lastInsertId, err := i.ImageService.Create(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
 	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
 		"lastInsertId": lastInsertId,
-	}))
-}
-
-func (i *ImagesController) DeleteImage(c *gin.Context) {
-	imageId := c.Param("image")
-	if imageId == "" {
-		c.JSON(400, utils.Error(1, "参数错误", errors.New("image 参数不为空")))
-		return
-	}
-
-	id, err := strconv.Atoi(imageId)
-	if err != nil {
-		c.JSON(400, utils.Error(1, "strconv 错误", err))
-		return
-	}
-
-	rowAffected, err := i.ImageService.RemoveImage(id)
-	if err != nil {
-		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
-		return
-	}
-	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
-		"rowAffected": rowAffected,
 	}))
 }
 
@@ -110,7 +87,30 @@ func (i *ImagesController) UpdateImage(c *gin.Context) {
 	req.UpdatedBy = account.(string)
 	req.Id = id
 
-	rowAffected, err := i.ImageService.ModifyImage(req)
+	rowAffected, err := i.ImageService.Update(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowAffected": rowAffected,
+	}))
+}
+
+func (i *ImagesController) DeleteImage(c *gin.Context) {
+	imageId := c.Param("image")
+	if imageId == "" {
+		c.JSON(400, utils.Error(1, "参数错误", errors.New("image 参数不为空")))
+		return
+	}
+
+	id, err := strconv.Atoi(imageId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 错误", err))
+		return
+	}
+
+	rowAffected, err := i.ImageService.Delete(id)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return

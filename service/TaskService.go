@@ -9,21 +9,22 @@ type TaskService struct {
 	TaskRepository *repository.TaskRepository
 }
 
-func (t *TaskService) FetchTasks(pageNumber, pageSize int) ([]*model.Task, error) {
-	return t.TaskRepository.GetTasks(pageNumber, pageSize)
+func (t *TaskService) List(pageNumber, pageSize int) ([]*model.Task, error) {
+	return t.TaskRepository.ListTasks(pageNumber, pageSize)
 }
 
-func (t *TaskService) FetchTasksCount() (int, error) {
-	return t.TaskRepository.GetTasksCount()
+func (t *TaskService) Count() (int, error) {
+	return t.TaskRepository.CountTasks()
 }
 
-func (t *TaskService) SaveTask(task model.Task) (int64, error) {
+func (t *TaskService) Create(task model.Task) (int64, error) {
 	return t.TaskRepository.CreateTask(task)
 }
 
-func (t *TaskService) ModifyTask(task model.Task) (int64, error) {
+func (t *TaskService) Update(task model.Task) (int64, error) {
 	return t.TaskRepository.UpdateTask(task)
 }
-func (t *TaskService) RemoveTask(id int) (int64, error) {
+
+func (t *TaskService) Delete(id int) (int64, error) {
 	return t.TaskRepository.DeleteTask(id)
 }
