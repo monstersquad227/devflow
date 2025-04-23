@@ -4,7 +4,7 @@ import "devflow/model"
 
 type EnvRepository struct{}
 
-func (e *EnvRepository) GetEnvs(pageNumber, pageSize int) ([]*model.Env, error) {
+func (e *EnvRepository) Get(pageNumber, pageSize int) ([]*model.Env, error) {
 	query := "SELECT id, name, created_by, updated_by, created_at, updated_at " +
 		"FROM env WHERE is_deleted = 0 LIMIT ? OFFSET ?"
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)

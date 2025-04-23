@@ -11,7 +11,7 @@ import (
 )
 
 type ProjectController struct {
-	Service *service.ProjectService
+	Service service.ProjectServiceInterface
 }
 
 /*

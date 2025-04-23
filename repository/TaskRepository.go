@@ -4,7 +4,7 @@ import "devflow/model"
 
 type TaskRepository struct{}
 
-func (t *TaskRepository) GetTasks(pageNumber, pageSize int) ([]*model.Task, error) {
+func (t *TaskRepository) ListTasks(pageNumber, pageSize int) ([]*model.Task, error) {
 	query := "SELECT id, name, image_id, created_by, updated_by, created_at, updated_at " +
 		"FROM task WHERE is_deleted = 0 LIMIT ? OFFSET ?"
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
@@ -22,7 +22,7 @@ func (t *TaskRepository) GetTasks(pageNumber, pageSize int) ([]*model.Task, erro
 	return data, nil
 }
 
-func (t *TaskRepository) GetTasksCount() (int, error) {
+func (t *TaskRepository) CountTasks() (int, error) {
 	query := "SELECT count(id) " +
 		"FROM task WHERE is_deleted = 0 "
 	var count int

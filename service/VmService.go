@@ -23,6 +23,18 @@ func (service *VmService) FetchVms(pageNumber, pageSize int) ([]*model.Vm, int, 
 	return vms, count, nil
 }
 
+func (service *VmService) Fetch(pageNumber, pageSize int) ([]*model.Vm, int, error) {
+	vms, err := service.VmRepo.GetVms(pageNumber, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+	count, err := service.VmRepo.GetVmsCount()
+	if err != nil {
+		return nil, 0, err
+	}
+	return vms, count, nil
+}
+
 func (service *VmService) SaveVm(vm model.Vm) (int64, error) {
 	encryptPassword, err := utils.EncryptAESGCM(vm.Password)
 	if err != nil {

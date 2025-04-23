@@ -11,7 +11,7 @@ import (
 )
 
 type ImagesController struct {
-	ImageService *service.ImageService
+	ImageService service.ImageServiceInterface
 }
 
 func (i *ImagesController) GetImages(c *gin.Context) {
@@ -29,7 +29,7 @@ func (i *ImagesController) GetImages(c *gin.Context) {
 		return
 	}
 
-	result, err := i.ImageService.FetchImages(pageNumber, pageSize)
+	result, err := i.ImageService.Fetch(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return

@@ -11,7 +11,7 @@ type ProjectRepository struct{}
 GetProjects 获取 project 记录，分页
 */
 
-func (r *ProjectRepository) GetProjects(pageNumber, pageSize int) (interface{}, error) {
+func (r *ProjectRepository) GetProjects(pageNumber, pageSize int) ([]*model.Project, error) {
 	query := "SELECT id, gitlab_name, deployment_name, gitlab_id, gitlab_repo, task_id, " +
 		"project_build_path, project_package_name, description " +
 		"FROM project WHERE is_deleted = 0 LIMIT ? OFFSET ? "

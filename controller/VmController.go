@@ -12,7 +12,7 @@ import (
 )
 
 type VmController struct {
-	VmService *service.VmService
+	VmService service.VmServiceInterface
 }
 
 func (v *VmController) GetVms(c *gin.Context) {
@@ -29,7 +29,7 @@ func (v *VmController) GetVms(c *gin.Context) {
 		c.JSON(400, utils.Error(1, "pageSize错误", err))
 		return
 	}
-	data, count, err := v.VmService.FetchVms(pageNumber, pageSize)
+	data, count, err := v.VmService.Fetch(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败", err))
 		return

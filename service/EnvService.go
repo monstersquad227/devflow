@@ -13,7 +13,11 @@ type EnvService struct {
 }
 
 func (e *EnvService) FetchEnvs(pageNumber, pageSize int) ([]*model.Env, error) {
-	return e.EnvRepository.GetEnvs(pageNumber, pageSize)
+	return e.EnvRepository.Get(pageNumber, pageSize)
+}
+
+func (e *EnvService) Fetch(pageNumber, pageSize int) ([]*model.Env, error) {
+	return e.EnvRepository.Get(pageNumber, pageSize)
 }
 
 func (e *EnvService) FetchEnvsCount() (int, error) {

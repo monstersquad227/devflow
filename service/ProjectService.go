@@ -33,7 +33,7 @@ type ProjectService struct {
 FetchProjects 获取项目逻辑
 */
 
-func (s *ProjectService) FetchProjects(pageNumber, pageSize int) (interface{}, error) {
+func (s *ProjectService) FetchProjects(pageNumber, pageSize int) ([]*model.Project, error) {
 	return s.Repo.GetProjects(pageNumber, pageSize)
 }
 
@@ -95,7 +95,7 @@ func (s *ProjectService) FetchBranches(gitlabId int) ([]*gitlab.Branch, error) {
 	return branches, nil
 }
 
-func (s *ProjectService) FetchBranchesDetails(gitlabId int, branch string) (interface{}, error) {
+func (s *ProjectService) FetchBranchesDetails(gitlabId int, branch string) (*gitlab.Branch, error) {
 	b, _, err := GitlabClient.Branches.GetBranch(gitlabId, branch)
 	if err != nil {
 		return nil, err
@@ -271,7 +271,7 @@ func (s *ProjectService) GetBuildDetails(projectId int) (interface{}, error) {
 	return s.ProjectBuildRepo.GetProjectBuildByProjectId(projectId)
 }
 
-func (s *ProjectService) GetBuildDetailsCount(projectId int) (interface{}, error) {
+func (s *ProjectService) GetBuildDetailsCount(projectId int) (int, error) {
 	return s.ProjectBuildRepo.GetProjectBuildCountByProjectId(projectId)
 }
 
@@ -292,7 +292,7 @@ func (s *ProjectService) ModifyProjectBuildStatus(deploymentName, status string,
 GetBuildStatus 获取构建状态逻辑
 */
 
-func (s *ProjectService) GetBuildStatus() (interface{}, error) {
+func (s *ProjectService) GetBuildStatus() ([]int, error) {
 	return s.ProjectBuildRepo.GetProjectIdByStatus()
 }
 

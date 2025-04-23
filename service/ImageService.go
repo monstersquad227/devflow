@@ -13,6 +13,10 @@ func (i *ImageService) FetchImages(pageNumber, pageSize int) ([]*model.Image, er
 	return i.ImageRepository.GetImages(pageNumber, pageSize)
 }
 
+func (i *ImageService) Fetch(pageNumber, pageSize int) ([]*model.Image, error) {
+	return i.ImageRepository.GetImages(pageNumber, pageSize)
+}
+
 func (i *ImageService) FetchImagesCount() (int, error) {
 	return i.ImageRepository.GetImagesCount()
 }
