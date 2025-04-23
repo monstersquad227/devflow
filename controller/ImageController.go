@@ -29,12 +29,12 @@ func (i *ImagesController) ListImages(c *gin.Context) {
 		return
 	}
 
-	result, err := i.ImageService.Fetch(pageNumber, pageSize)
+	result, err := i.ImageService.List(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
-	count, err := i.ImageService.FetchImagesCount()
+	count, err := i.ImageService.Count()
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -55,7 +55,7 @@ func (i *ImagesController) CreateImage(c *gin.Context) {
 	req.CreatedBy = account.(string)
 	req.UpdatedBy = account.(string)
 
-	lastInsertId, err := i.ImageService.SaveImage(req)
+	lastInsertId, err := i.ImageService.Create(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -87,7 +87,7 @@ func (i *ImagesController) UpdateImage(c *gin.Context) {
 	req.UpdatedBy = account.(string)
 	req.Id = id
 
-	rowAffected, err := i.ImageService.ModifyImage(req)
+	rowAffected, err := i.ImageService.Update(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -110,7 +110,7 @@ func (i *ImagesController) DeleteImage(c *gin.Context) {
 		return
 	}
 
-	rowAffected, err := i.ImageService.RemoveImage(id)
+	rowAffected, err := i.ImageService.Delete(id)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return

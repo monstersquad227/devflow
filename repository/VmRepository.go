@@ -39,9 +39,9 @@ func (receiver *VmRepository) CountVms() (int, error) {
 
 func (receiver *VmRepository) CreateVm(vm model.Vm) (int64, error) {
 	query := "INSERT " +
-		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, region, cloud_provider, os, password) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Region, vm.CloudProvider, vm.Os, vm.Password)
+		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, password) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Application, vm.Region, vm.CloudProvider, vm.Os, vm.Password)
 	if err != nil {
 		return 0, err
 	}

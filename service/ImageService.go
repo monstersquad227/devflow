@@ -9,26 +9,22 @@ type ImageService struct {
 	ImageRepository *repository.ImageRepository
 }
 
-func (i *ImageService) FetchImages(pageNumber, pageSize int) ([]*model.Image, error) {
-	return i.ImageRepository.GetImages(pageNumber, pageSize)
+func (i *ImageService) List(pageNumber, pageSize int) ([]*model.Image, error) {
+	return i.ImageRepository.ListImages(pageNumber, pageSize)
 }
 
-func (i *ImageService) Fetch(pageNumber, pageSize int) ([]*model.Image, error) {
-	return i.ImageRepository.GetImages(pageNumber, pageSize)
+func (i *ImageService) Count() (int, error) {
+	return i.ImageRepository.CountImages()
 }
 
-func (i *ImageService) FetchImagesCount() (int, error) {
-	return i.ImageRepository.GetImagesCount()
-}
-
-func (i *ImageService) SaveImage(image model.Image) (int64, error) {
+func (i *ImageService) Create(image model.Image) (int64, error) {
 	return i.ImageRepository.CreateImage(image)
 }
 
-func (i *ImageService) RemoveImage(id int) (int64, error) {
-	return i.ImageRepository.DeleteImage(id)
+func (i *ImageService) Update(image model.Image) (int64, error) {
+	return i.ImageRepository.UpdateImage(image)
 }
 
-func (i *ImageService) ModifyImage(image model.Image) (int64, error) {
-	return i.ImageRepository.UpdateImage(image)
+func (i *ImageService) Delete(id int) (int64, error) {
+	return i.ImageRepository.DeleteImage(id)
 }

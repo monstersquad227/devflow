@@ -33,11 +33,11 @@ type VmServiceInterface interface {
 }
 
 type ImageServiceInterface interface {
-	Fetch(pageNumber, pageSize int) ([]*model.Image, error)
-	FetchImagesCount() (int, error)
-	SaveImage(image model.Image) (int64, error)
-	RemoveImage(id int) (int64, error)
-	ModifyImage(image model.Image) (int64, error)
+	List(pageNumber, pageSize int) ([]*model.Image, error)
+	Count() (int, error)
+	Create(image model.Image) (int64, error)
+	Update(image model.Image) (int64, error)
+	Delete(id int) (int64, error)
 }
 
 type EnvServiceInterface interface {
