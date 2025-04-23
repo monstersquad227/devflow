@@ -13,7 +13,8 @@ func VmRegister(api *gin.RouterGroup) {
 			VmRepo: &repository.VmRepository{},
 		},
 	}
-	api.GET("/vms", vmController.GetVms)                         // √
+
+	api.GET("/vms", vmController.ListVms)                        // √
 	api.POST("/vms", vmController.CreateVm)                      // √
 	api.PUT("/vms", vmController.UpdateVm)                       // √
 	api.DELETE("/vms/:vm", vmController.DeleteVm)                // √

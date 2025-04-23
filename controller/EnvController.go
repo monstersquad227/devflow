@@ -10,10 +10,10 @@ import (
 )
 
 type EnvController struct {
-	EnvService *service.EnvService
+	EnvService service.EnvServiceInterface
 }
 
-func (e *EnvController) GetEnvs(c *gin.Context) {
+func (crtl *EnvController) ListEnvs(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -28,13 +28,13 @@ func (e *EnvController) GetEnvs(c *gin.Context) {
 		return
 	}
 
-	result, err := e.EnvService.FetchEnvs(pageNumber, pageSize)
+	result, err := crtl.EnvService.List(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败: "+err.Error(), err))
 		return
 	}
 
-	count, err := e.EnvService.FetchEnvsCount()
+	count, err := crtl.EnvService.Count()
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败:"+err.Error(), err))
 		return
@@ -46,7 +46,7 @@ func (e *EnvController) GetEnvs(c *gin.Context) {
 	}))
 }
 
-func (e *EnvController) CreateEnv(c *gin.Context) {
+func (crtl *EnvController) CreateEnv(c *gin.Context) {
 	req := model.Env{}
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON错误", nil))
@@ -56,7 +56,7 @@ func (e *EnvController) CreateEnv(c *gin.Context) {
 	req.CreatedBy = account.(string)
 	req.UpdatedBy = account.(string)
 
-	lastId, err := e.EnvService.SaveEnv(req)
+	lastId, err := crtl.EnvService.Create(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -66,7 +66,7 @@ func (e *EnvController) CreateEnv(c *gin.Context) {
 	}))
 }
 
-func (e *EnvController) DeleteEnv(c *gin.Context) {
+func (crtl *EnvController) DeleteEnv(c *gin.Context) {
 	envId := c.Param("env")
 	if envId == "" {
 		c.JSON(400, utils.Error(1, "参数错误: env", nil))
@@ -77,7 +77,7 @@ func (e *EnvController) DeleteEnv(c *gin.Context) {
 		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
 		return
 	}
-	rowAffected, err := e.EnvService.RemoveEnv(id)
+	rowAffected, err := crtl.EnvService.Delete(id)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -87,7 +87,7 @@ func (e *EnvController) DeleteEnv(c *gin.Context) {
 	}))
 }
 
-func (e *EnvController) UpdateEnv(c *gin.Context) {
+func (crtl *EnvController) UpdateEnv(c *gin.Context) {
 	envId := c.Param("env")
 	req := model.Env{}
 	if err := c.ShouldBind(&req); err != nil {
@@ -105,7 +105,7 @@ func (e *EnvController) UpdateEnv(c *gin.Context) {
 	req.Id = id
 	req.UpdatedBy = account.(string)
 
-	rowAffected, err := e.EnvService.ModifyEnv(req)
+	rowAffected, err := crtl.EnvService.Update(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -115,9 +115,9 @@ func (e *EnvController) UpdateEnv(c *gin.Context) {
 	}))
 }
 
-func (e *EnvController) GetNamespacesByEnv(c *gin.Context) {
+func (crtl *EnvController) GetNamespacesByEnv(c *gin.Context) {
 	env := c.Param("env")
-	result, err := e.EnvService.FetchNamespacesByEnv(env)
+	result, err := crtl.EnvService.GetNsByEnv(env)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败: "+err.Error(), err))
 		return
