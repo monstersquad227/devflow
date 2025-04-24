@@ -13,6 +13,9 @@ type Config struct {
 	OpenLdap struct {
 		Host string `mapstructure:"host"`
 		Port string `mapstructure:"port"`
+		Ou   string `mapstructure:"ou"`
+		Dc1  string `mapstructure:"dc1"`
+		Dc2  string `mapstructure:"dc2"`
 	}
 	Jwt struct {
 		Expire int64  `mapstructure:"expire"`

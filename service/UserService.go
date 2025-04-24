@@ -1,6 +1,7 @@
 package service
 
 import (
+	"devflow/config"
 	"devflow/repository"
 	"devflow/utils"
 	"errors"
@@ -13,7 +14,11 @@ type UserService struct {
 
 func (s *UserService) UserLogin(account, password string) (interface{}, interface{}, error) {
 
-	if err := LdapClient.Bind(fmt.Sprintf("cn=%s,ou=technology,dc=chengdd,dc=com", account), password); err != nil {
+	if err := LdapClient.Bind(fmt.Sprintf("cn=%s,ou=%s,dc=%s,dc=%s",
+		account,
+		config.GlobalConfig.OpenLdap.Ou,
+		config.GlobalConfig.OpenLdap.Dc1,
+		config.GlobalConfig.OpenLdap.Dc2), password); err != nil {
 		return nil, nil, err
 	}
 
