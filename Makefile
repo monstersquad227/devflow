@@ -1,4 +1,4 @@
-##@ The commands are:
+##@ 🎯 The commands are:
 
 GO_ENV := GO111MODULE=on GOPROXY=https://goproxy.cn,direct
 IMG ?= devflow:latest
@@ -9,6 +9,10 @@ help: ## Display this help.
 
 .PHONY: all
 all: clean build
+
+.PHONY: run
+run: ## Running devflow
+	@go run main.go
 
 .PHONY: build
 build: ## Build devflow binary
