@@ -6,7 +6,6 @@ import (
 	"devflow/repository"
 	"devflow/utils"
 	"encoding/base64"
-	"fmt"
 	ecs20140526 "github.com/alibabacloud-go/ecs-20140526/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 )
@@ -65,13 +64,11 @@ func (service *VmService) CreateAliyunVm(vm model.Vm) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println(vm.Region)
-	instanceType := utils.GenerateInstanceTypeBySpec(vm.Spec)
 	request := &ecs20140526.RunInstancesRequest{
 		InstanceName:    tea.String(vm.InstanceName),
 		Password:        tea.String(vm.Password),
-		InstanceType:    tea.String(instanceType),
-		RegionId:        tea.String("cn-shanghai"),
+		InstanceType:    tea.String(utils.GenerateInstanceTypeBySpec(vm.Spec)),
+		RegionId:        tea.String(utils.GenerateInstanceTypeBySpec(vm.Spec)),
 		ImageId:         tea.String(config.GlobalConfig.Aliyun.ImageId),
 		UserData:        tea.String(utils.GenerateUserData()),
 		SecurityGroupId: tea.String("sg-uf60f2wmh0rdiabpbweq"),
