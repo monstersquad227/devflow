@@ -9,3 +9,4 @@ test
 
 .idea
 ./devflow
+./config/config.ini

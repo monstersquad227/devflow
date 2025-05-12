@@ -30,6 +30,7 @@ type VmServiceInterface interface {
 	Delete(id int) (int64, error)
 	FetchVmPasswordById(id int) (string, error)
 	FetchVmsByApplication(application string) (interface{}, error)
+	CreateAliyunVm(vm model.Vm) (int64, error)
 }
 
 type ImageServiceInterface interface {

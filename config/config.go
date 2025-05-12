@@ -55,6 +55,11 @@ type Config struct {
 	Docker struct {
 		RemotePort string `mapstructure:"remote_port"`
 	}
+	Aliyun struct {
+		AccessKey string `mapstructure:"access_key"`
+		SecretKey string `mapstructure:"secret_key"`
+		ImageId   string `mapstructure:"image_id"`
+	}
 }
 
 var GlobalConfig Config

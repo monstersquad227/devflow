@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 	"devflow/config"
+	aliyunopenapi "github.com/alibabacloud-go/darabonba-openapi/client"
+	ecs20140526 "github.com/alibabacloud-go/ecs-20140526/v2/client"
+	"github.com/alibabacloud-go/tea/tea"
 	"github.com/bndr/gojenkins"
 	"github.com/go-ldap/ldap/v3"
 	"github.com/xanzy/go-gitlab"
@@ -47,4 +50,17 @@ func InitOpenLdap() {
 	}
 	LdapClient = l
 	log.Println("OpenLdap 客户端初始化成功")
+}
+
+func NewAliyunClient() (*ecs20140526.Client, error) {
+	cfg := &aliyunopenapi.Config{
+		AccessKeyId:     tea.String(config.GlobalConfig.Aliyun.AccessKey),
+		AccessKeySecret: tea.String(config.GlobalConfig.Aliyun.SecretKey),
+	}
+	cfg.Endpoint = tea.String("ecs.cn-shanghai.aliyuncs.com")
+	client, err := ecs20140526.NewClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
 }

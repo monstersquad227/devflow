@@ -60,14 +60,34 @@ func (v *VmController) CreateVm(c *gin.Context) {
 	}
 	req.Password = string(password)
 
-	lastId, err := v.VmService.Create(req)
-	if err != nil {
-		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+	switch req.CloudProvider {
+	case "aliyun":
+		lastId, err := v.VmService.CreateAliyunVm(req)
+		if err != nil {
+			c.JSON(500, utils.Error(1, "内部错误Aliyun : "+err.Error(), err))
+			return
+		}
+		c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+			"LastInsertId": lastId,
+		}))
+		return
+	case "huawei":
+		c.JSON(http.StatusOK, "ING...")
+	case "tencent":
+		c.JSON(http.StatusOK, "ING...")
+	case "aws":
+		c.JSON(http.StatusOK, "ING...")
+	case "local":
+		lastId, err := v.VmService.Create(req)
+		if err != nil {
+			c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+			return
+		}
+		c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+			"LastInsertId": lastId,
+		}))
 		return
 	}
-	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
-		"LastInsertId": lastId,
-	}))
 }
 
 func (v *VmController) UpdateVm(c *gin.Context) {
