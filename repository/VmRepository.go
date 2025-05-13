@@ -105,3 +105,25 @@ func (receiver *VmRepository) GetVmsByApplication(application string) (interface
 
 	return data, nil
 }
+
+func (receiver *VmRepository) GetCloudProviderById(id int) (string, error) {
+	var cloud string
+	query := "SELECT cloud_provider " +
+		"FROM vm WHERE id = ?"
+	err := MysqlClient.QueryRow(query, id).Scan(&cloud)
+	if err != nil {
+		return "", err
+	}
+	return cloud, nil
+}
+
+func (receiver *VmRepository) GetInstanceIDById(id int) (string, error) {
+	var instanceId string
+	query := "SELECT instance_id " +
+		"FROM vm WHERE id = ?"
+	err := MysqlClient.QueryRow(query, id).Scan(&instanceId)
+	if err != nil {
+		return "", err
+	}
+	return instanceId, nil
+}

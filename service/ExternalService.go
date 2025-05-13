@@ -8,6 +8,9 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/bndr/gojenkins"
 	"github.com/go-ldap/ldap/v3"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
+	ecs "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/ecs/v2"
+	region "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/ecs/v2/region"
 	"github.com/xanzy/go-gitlab"
 	"log"
 )
@@ -63,4 +66,15 @@ func NewAliyunClient() (*ecs20140526.Client, error) {
 		return nil, err
 	}
 	return client, nil
+}
+
+func NewHuaweiClient() *ecs.EcsClient {
+	return ecs.NewEcsClient(
+		ecs.EcsClientBuilder().
+			WithRegion(region.ValueOf("cn-east-3")).
+			WithCredential(basic.NewCredentialsBuilder().
+				WithAk(config.GlobalConfig.Huawei.AccessKey).
+				WithSk(config.GlobalConfig.Huawei.SecretKey).
+				Build()).
+			Build())
 }

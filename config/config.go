@@ -60,6 +60,10 @@ type Config struct {
 		SecretKey string `mapstructure:"secret_key"`
 		ImageId   string `mapstructure:"image_id"`
 	}
+	Huawei struct {
+		AccessKey string `mapstructure:"access_key"`
+		SecretKey string `mapstructure:"secret_key"`
+	}
 }
 
 var GlobalConfig Config

@@ -36,6 +36,30 @@ func (service *VmService) Update(vm model.Vm) (int64, error) {
 }
 
 func (service *VmService) Delete(id int) (int64, error) {
+	cloudProvider, err := service.VmRepo.GetCloudProviderById(id)
+	if err != nil {
+		return 0, err
+	}
+
+	if cloudProvider == "aliyun" {
+		instanceID, err := service.VmRepo.GetInstanceIDById(id)
+		if err != nil {
+			return 0, err
+		}
+		client, err := NewAliyunClient()
+		if err != nil {
+			return 0, err
+		}
+		request := &ecs20140526.DeleteInstancesRequest{
+			Force:      tea.Bool(true),
+			InstanceId: tea.StringSlice([]string{instanceID}),
+		}
+		_, err = client.DeleteInstances(request)
+		if err != nil {
+			return 0, err
+		}
+	}
+
 	return service.VmRepo.DeleteVm(id)
 }
 
