@@ -9,7 +9,26 @@ type VmRepository struct{}
 
 func (receiver *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error) {
 	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, created_at, updated_at " +
-		"FROM vm WHERE is_deleted = 0 LIMIT ? OFFSET ? "
+		"FROM vm WHERE is_deleted = 0 " +
+		"ORDER BY " +
+		"CASE cloud_provider " +
+		"WHEN 'local' THEN 1 " +
+		"WHEN 'aliyun' THEN 2 " +
+		"WHEN 'huawei' THEN 3 " +
+		"WHEN 'tencent' THEN 4 " +
+		"WHEN 'aws' THEN 5 " +
+		"ELSE 99 " +
+		"END ASC, " +
+		"CASE spec " +
+		"WHEN 'small' THEN 1 " +
+		"WHEN 'medium' THEN 2 " +
+		"WHEN 'large' THEN 3 " +
+		"WHEN 'xlarge' THEN 4 " +
+		"WHEN '2xlarge' THEN 5 " +
+		"WHEN 'ultra' THEN 6 " +
+		"ELSE 99 " +
+		"END ASC " +
+		"LIMIT ? OFFSET ? "
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
 	if err != nil {
 		return nil, err
