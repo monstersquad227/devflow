@@ -56,9 +56,11 @@ type Config struct {
 		RemotePort string `mapstructure:"remote_port"`
 	}
 	Aliyun struct {
-		AccessKey string `mapstructure:"access_key"`
-		SecretKey string `mapstructure:"secret_key"`
-		ImageId   string `mapstructure:"image_id"`
+		AccessKey       string `mapstructure:"access_key"`
+		SecretKey       string `mapstructure:"secret_key"`
+		ImageId         string `mapstructure:"image_id"`
+		VSwitchId       string `mapstructure:"vswitch_id"`
+		SecurityGroupId string `mapstructure:"security_group_id"`
 	}
 	Huawei struct {
 		AccessKey string `mapstructure:"access_key"`

@@ -17,7 +17,8 @@ type ProjectServiceInterface interface {
 	Deploy(r model.ProjectDeploy) (interface{}, error)
 	ListBuildDetails(projectId int) (interface{}, error)
 	CountBuildDetails(projectId int) (int, error)
-	ListBuildStatus() ([]int, error)
+	ListBuildStatusING() ([]int, error)
+	ListBuildStatusFail() ([]int, error)
 	UpdateBuildStatus(deploymentName, status string, jobId int) (int64, error)
 	ListProjectImageTags(projectName, env string) (interface{}, error)
 }

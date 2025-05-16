@@ -215,8 +215,12 @@ func (s *ProjectService) CountBuildDetails(projectId int) (int, error) {
 	return s.ProjectBuildRepo.GetProjectBuildCountByProjectId(projectId)
 }
 
-func (s *ProjectService) ListBuildStatus() ([]int, error) {
-	return s.ProjectBuildRepo.GetProjectIdByStatus()
+func (s *ProjectService) ListBuildStatusING() ([]int, error) {
+	return s.ProjectBuildRepo.GetProjectIdByStatusING()
+}
+
+func (s *ProjectService) ListBuildStatusFail() ([]int, error) {
+	return s.ProjectBuildRepo.GetProjectIdByStatusFail()
 }
 
 func (s *ProjectService) UpdateBuildStatus(deploymentName, status string, jobId int) (int64, error) {

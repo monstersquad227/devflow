@@ -197,12 +197,20 @@ func (ctrl *ProjectController) ListBuildDetails(c *gin.Context) {
 }
 
 func (ctrl *ProjectController) ListBuildStatus(c *gin.Context) {
-	result, err := ctrl.Service.ListBuildStatus()
+	ing, err := ctrl.Service.ListBuildStatusING()
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误", err))
 		return
 	}
-	c.JSON(http.StatusOK, utils.Success(result))
+	fail, err := ctrl.Service.ListBuildStatusFail()
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误", err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"ing":  ing,
+		"fail": fail,
+	}))
 }
 
 func (ctrl *ProjectController) UpdateBuildStatus(c *gin.Context) {

@@ -146,3 +146,14 @@ func (receiver *VmRepository) GetInstanceIDById(id int) (string, error) {
 	}
 	return instanceId, nil
 }
+
+func (receiver *VmRepository) GetRegionById(id int) (string, error) {
+	var region string
+	query := "SELECT region " +
+		"FROM vm WHERE id = ?"
+	err := MysqlClient.QueryRow(query, id).Scan(&region)
+	if err != nil {
+		return "", err
+	}
+	return region, nil
+}

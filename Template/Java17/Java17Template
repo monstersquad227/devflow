@@ -45,13 +45,13 @@ pipeline {
         stage('Dockerfile') {
             steps {
                 sh """
-                    echo \"
-                        FROM ${image_source}
-                        WORKDIR /opt
-                        ADD ./target/*.jar ./
-                        ENV JavaOptions="-Xmx256m"
-                        ENV PackageName=${gitlab_name}.jar
-                    \" > Dockerfile
+cat <<EOF > Dockerfile
+FROM ${image_source}
+WORKDIR /opt
+ADD ./${gitlab_name}-server/target/*.jar ./
+ENV JavaOptions="-Dspring.profiles.active=${environment_unique} -Dspring.cloud.nacos.discovery.group=${environment_unique}"
+ENV PackageName=${gitlab_name}-server.jar
+EOF
                 """
             }
         }

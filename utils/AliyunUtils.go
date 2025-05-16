@@ -31,7 +31,7 @@ func GenerateInstanceTypeBySpec(spec string) string {
 		return "ecs.t5-lc1m2.large"
 	case "large":
 		return "ecs.t5-c1m2.xlarge"
-	case "extraLarge":
+	case "xlarge":
 		return "ecs.t5-c1m2.2xlarge"
 	default:
 		return "ecs.t5-lc1m2.small"

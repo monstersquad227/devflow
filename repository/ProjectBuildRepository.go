@@ -11,9 +11,34 @@ type ProjectBuildRepository struct {
 GetProjectIdByStatus 获取 ING 状态的项目
 */
 
-func (p *ProjectBuildRepository) GetProjectIdByStatus() ([]int, error) {
+func (p *ProjectBuildRepository) GetProjectIdByStatusING() ([]int, error) {
 	query := "SELECT project_id " +
 		"FROM project_build WHERE build_status = 'ING'"
+	rows, err := MysqlClient.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	data := make([]int, 0)
+	for rows.Next() {
+		obj := model.ProjectBuild{}
+		err := rows.Scan(&obj.ProjectId)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, obj.ProjectId)
+	}
+	return data, nil
+}
+
+func (p *ProjectBuildRepository) GetProjectIdByStatusFail() ([]int, error) {
+	query := "SELECT pb.project_id " +
+		"FROM project_build pb " +
+		"JOIN ( " +
+		"    SELECT project_id, MAX(id) AS max_id " +
+		"    FROM project_build " +
+		"    GROUP BY project_id " +
+		") latest ON pb.project_id = latest.project_id AND pb.id = latest.max_id " +
+		"WHERE pb.build_status = 'FAILURE'"
 	rows, err := MysqlClient.Query(query)
 	if err != nil {
 		return nil, err
@@ -37,7 +62,7 @@ CreateProjectBuild 创建 project_build 记录
 func (p *ProjectBuildRepository) CreateProjectBuild(params, createBy, taskName string, projectID int, jenkinsID int64) (int64, error) {
 	query := "INSERT " +
 		"INTO project_build (project_id, jenkins_id, task_name, build_status, build_params, create_by) " +
-		"VALUES(?, ?, ?, ?, ?)"
+		"VALUES(?, ?, ?, ?, ?, ?)"
 	result, err := MysqlClient.Exec(query, projectID, jenkinsID, taskName, "ING", params, createBy)
 	if err != nil {
 		return 0, err
