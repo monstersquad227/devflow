@@ -1,0 +1,79 @@
+def generateVersion() {
+    return new Date().format('yyyyMMdd_HHmmss')
+}
+
+pipeline {
+    agent {
+         label 'LinuxJava'
+    }
+
+    environment {
+        image_version = generateVersion()
+    }
+
+    parameters {
+        string(name: 'gitlab_name', defaultValue: '', description: '')
+        string(name: 'deployment_name', defaultValue: '', description: '')
+        string(name: 'branch', defaultValue: '', description: '')
+        string(name: 'gitlab_repo', defaultValue: '', description: '')
+        string(name: 'image_source', defaultValue: '', description: '')
+        string(name: 'environment_unique', defaultValue: '', description: '')
+        string(name: 'harbor_url', defaultValue: '', description: '')
+        string(name: 'short_id', defaultValue: '', description: '')
+        string(name: 'command', defaultValue: '', description: '')
+        string(name: 'created_by', defaultValue: '', description: '')
+    }
+
+    stages {
+        stage('Pull') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '${branch}']], userRemoteConfigs: [[url: '${gitlab_repo}']]])
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh """
+                    ${command} \
+                    -Dsonar.projectKey=${gitlab_name} \
+                    -Dsonar.projectName=${gitlab_name} \
+                    -Dsonar.host.url=http://192.168.1.208:9000 \
+                    -Dsonar.token=sqp_7aa43baf5663b61d9cd2083ab23f5e858c9b64c8
+                """
+            }
+        }
+        stage('Dockerfile') {
+            steps {
+                sh """
+cat <<EOF > Dockerfile
+FROM ${image_source}
+WORKDIR /opt
+ADD ./${gitlab_name}-server/target/*.jar ./
+ENV JavaOptions="-Dspring.profiles.active=${environment_unique} -Dspring.cloud.nacos.discovery.group=${environment_unique}"
+ENV PackageName=${gitlab_name}-server.jar
+EOF
+                """
+            }
+        }
+        stage('Build') {
+            steps {
+                sh """
+                    docker build -t ${harbor_url}/${environment_unique}/${deployment_name}:${image_version}-${short_id} ./
+                    docker push ${harbor_url}/${environment_unique}/${deployment_name}:${image_version}-${short_id}
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            deleteDir()
+        }
+        failure {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=FAILURE """
+        }
+        success {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=SUCCESS """
+        }
+    }
+}

@@ -1,0 +1,91 @@
+def generateVersion() {
+    return new Date().format('yyyyMMdd_HHmmss')
+}
+
+pipeline {
+    agent {
+         label 'Linux'
+    }
+
+    environment {
+        image_version = generateVersion()
+    }
+
+    parameters {
+        string(name: 'gitlab_name', defaultValue: '', description: '')
+        string(name: 'deployment_name', defaultValue: '', description: '')
+        string(name: 'branch', defaultValue: '', description: '')
+        string(name: 'depend_branch', defaultValue: '', description: '')
+        string(name: 'gitlab_repo', defaultValue: '', description: '')
+        string(name: 'depend_gitlab_repo', defaultValue: '', description: '')
+        string(name: 'project_build_path', defaultValue: '', description: '')
+        string(name: 'project_package_name', defaultValue: '', description: '')
+        string(name: 'image_source', defaultValue: '', description: '')
+        string(name: 'environment_unique', defaultValue: '', description: '')
+        string(name: 'harbor_url', defaultValue: '', description: '')
+        string(name: 'short_id', defaultValue: '', description: '')
+        string(name: 'command', defaultValue: '', description: '')
+        string(name: 'created_by', defaultValue: '', description: '')
+    }
+
+    stages {
+        stage('Pull') {
+            steps {
+                sh """
+                    git clone -b ${depend_branch} ${depend_gitlab_repo}
+                    git clone -b ${branch} ${gitlab_repo}
+                """
+                // checkout([$class: 'GitSCM', branches: [[name: '${branch}']], userRemoteConfigs: [[url: '${gitlab_repo}']]])
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh """
+                    cd ${gitlab_name}/${project_build_path}
+                    ${command}
+                """
+            }
+        }
+        stage('Dockerfile') {
+            // mcr.microsoft.com/dotnet/aspnet:5.0
+            steps {
+                sh """
+                    cd ${gitlab_name}/${project_build_path}
+                    echo \"
+                        FROM ${image_source}
+                        WORKDIR /opt
+                        RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \\
+                            echo 'Asia/Shanghai' >/etc/timezone && \\
+                            sed -i 's@SECLEVEL=2@SECLEVEL=1@g' /etc/ssl/openssl.cnf && \\
+                            sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf && \\
+                            sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /usr/lib/ssl/openssl.cnf
+                        COPY out ./
+                        ENTRYPOINT [\\"dotnet\\", \\"${project_package_name}.dll\\"]
+                    \" > Dockerfile
+                """
+            }
+        }
+        stage('Build') {
+            steps {
+                sh """
+                    cd ${gitlab_name}/${project_build_path}
+                    docker build -t ${harbor_url}/${environment_unique}/${deployment_name}:${image_version}-${short_id} ./
+                    docker push ${harbor_url}/${environment_unique}/${deployment_name}:${image_version}-${short_id}
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            deleteDir()
+        }
+        failure {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=FAILURE """
+        }
+        success {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=SUCCESS """
+        }
+    }
+}

@@ -1,0 +1,73 @@
+def generateVersion() {
+    return new Date().format('yyyyMMdd_HHmmss')
+}
+
+pipeline {
+    agent {
+         label 'Vue'
+    }
+
+    environment {
+        image_version = generateVersion()
+    }
+
+    parameters {
+        string(name: 'gitlab_name', defaultValue: '', description: '')
+        string(name: 'deployment_name', defaultValue: '', description: '')
+        string(name: 'branch', defaultValue: '', description: '')
+        string(name: 'gitlab_repo', defaultValue: '', description: '')
+        string(name: 'image_source', defaultValue: '', description: '')
+        string(name: 'environment_unique', defaultValue: '', description: '')
+        string(name: 'harbor_url', defaultValue: '', description: '')
+        string(name: 'short_id', defaultValue: '', description: '')
+        string(name: 'command', defaultValue: '', description: '')
+        string(name: 'created_by', defaultValue: '', description: '')
+    }
+
+    stages {
+        stage('Pull') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '${branch}']], userRemoteConfigs: [[url: '${gitlab_repo}']]])
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh """
+                    ${command}
+                """
+            }
+        }
+        stage('Dockerfile') {
+            steps {
+                sh """
+                    echo \"
+                        FROM ${image_source}
+                        WORKDIR /opt
+                        ADD ./dist ./
+                    \" > Dockerfile
+                """
+            }
+        }
+        stage('Build') {
+            steps {
+                sh """
+                    docker build -t ${harbor_url}/${environment_unique}/${deployment_name}:${image_version}-${short_id} ./
+                    docker push ${harbor_url}/${environment_unique}/${deployment_name}:${image_version}-${short_id}
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            deleteDir()
+        }
+        failure {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=FAILURE """
+        }
+        success {
+            sh """ devflow_callback --deployment_name=${deployment_name} --job_name=${BUILD_DISPLAY_NAME} --status=SUCCESS """
+        }
+    }
+}

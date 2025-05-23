@@ -1,0 +1,12 @@
+logs
+
+fatconfig
+devconfig
+uatconfig
+fortconfig
+
+test
+
+.idea
+
+config/config.ini
