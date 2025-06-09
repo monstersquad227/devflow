@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	pb "github.com/monstersquad227/flowedge-proto"
 	"github.com/xanzy/go-gitlab"
@@ -310,6 +311,7 @@ func (svc *ProjectService) UpdateBuildStatus(deploymentName, status string, jobI
 
 func (svc *ProjectService) ListProjectImageTags(projectName, env string) (interface{}, error) {
 	url := config.GlobalConfig.Harbor.URL + "/api/repositories/" + env + "%2F" + projectName + "/tags?detail=false"
+	fmt.Println(url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -336,4 +338,47 @@ func (svc *ProjectService) ListProjectImageTags(projectName, env string) (interf
 		return nil, err
 	}
 	return harborTagArray, nil
+}
+
+func (svc *ProjectService) ListProjectImageTagsV2(projectName, env string) (interface{}, error) {
+	url := config.GlobalConfig.Harbor.URL + "/api/v2.0/projects/" + env + "/repositories/" + projectName + "/artifacts"
+	fmt.Println(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	encrypt := base64.StdEncoding.EncodeToString([]byte(config.GlobalConfig.Harbor.Username + ":" + config.GlobalConfig.Harbor.Password))
+	req.Header.Set("Authorization", "Basic "+encrypt)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	bodyByte, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	type harborTag struct {
+		Name string `json:"name"`
+	}
+	type tag struct {
+		Name string `json:"name"`
+	}
+	type artifact struct {
+		Tags []tag `json:"tags"`
+	}
+	var artifacts []artifact
+	if err = json.Unmarshal(bodyByte, &artifacts); err != nil {
+		return nil, err
+	}
+
+	var harborTags []harborTag
+	for _, art := range artifacts {
+		for _, tg := range art.Tags {
+			harborTags = append(harborTags, harborTag{Name: tg.Name})
+		}
+	}
+
+	return harborTags, nil
 }

@@ -23,6 +23,7 @@ type ProjectServiceInterface interface {
 	ListBuildStatusFail() ([]int, error)
 	UpdateBuildStatus(deploymentName, status string, jobId int) (int64, error)
 	ListProjectImageTags(projectName, env string) (interface{}, error)
+	ListProjectImageTagsV2(projectName, env string) (interface{}, error)
 }
 
 type VmServiceInterface interface {

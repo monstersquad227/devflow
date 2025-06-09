@@ -265,9 +265,10 @@ func (ctrl *ProjectController) ListProjectImageTags(c *gin.Context) {
 		c.JSON(400, utils.Error(1, "参数错误", errors.New("project or env 参数不存在")))
 		return
 	}
-	result, err := ctrl.Service.ListProjectImageTags(projectName, env)
+	//result, err := ctrl.Service.ListProjectImageTags(projectName, env)
+	result, err := ctrl.Service.ListProjectImageTagsV2(projectName, env)
 	if err != nil {
-		c.JSON(500, utils.Error(1, "内部错误", err))
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
 	c.JSON(http.StatusOK, utils.Success(result))
