@@ -45,7 +45,7 @@ func (s *FlowEdgeServer) Communicate(stream pb.FlowEdge_CommunicateServer) error
 			agentID = msg.GetRegister().AgentId
 			s.streams.Store(agentID, stream)
 
-			f := model.Flowedge{
+			f := &model.Flowedge{
 				AgentID:  agentID,
 				Hostname: msg.GetRegister().Hostname,
 				Version:  msg.GetRegister().Version,
@@ -63,7 +63,7 @@ func (s *FlowEdgeServer) Communicate(stream pb.FlowEdge_CommunicateServer) error
 			agent 心跳
 		*/
 		case pb.MessageType_HEARTBEAT:
-			f := model.Flowedge{
+			f := &model.Flowedge{
 				AgentID:       msg.GetHeartbeat().AgentId,
 				LastHeartBeat: time.Now().Format("2006-01-02 15:04:05"),
 			}

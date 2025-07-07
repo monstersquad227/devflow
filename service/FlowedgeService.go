@@ -24,10 +24,14 @@ func (fs *FlowedgeService) FetchFlowedgesByApplication(application string) (inte
 	return fs.FlowedgeRepository.GetFlowedgeByApplication(application)
 }
 
-func (fs *FlowedgeService) Create(flowedge model.Flowedge) (int64, error) {
+func (fs *FlowedgeService) Create(flowedge *model.Flowedge) (int64, error) {
 	return fs.FlowedgeRepository.CreateFlowedge(flowedge)
 }
 
-func (fs *FlowedgeService) Update(flowedge model.Flowedge) (int64, error) {
+func (fs *FlowedgeService) Update(flowedge *model.Flowedge) (int64, error) {
 	return fs.FlowedgeRepository.UpdateFlowedgeLastHeartBeat(flowedge)
+}
+
+func (fs *FlowedgeService) UpdateApplication(flowedge *model.Flowedge) (int64, error) {
+	return fs.FlowedgeRepository.UpdateFlowedgeApplication(flowedge)
 }

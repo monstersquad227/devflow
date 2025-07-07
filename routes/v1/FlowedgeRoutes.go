@@ -16,4 +16,5 @@ func FlowedgeRegister(api *gin.RouterGroup) {
 
 	api.GET("/flowedges", flowedgeController.ListFlowedges)
 	api.GET("/flowedges/:flowedge", flowedgeController.GetFlowedgesByApplication)
+	api.PATCH("/flowedges/:flowedge", flowedgeController.UpdateFlowedgeApplicationByAgentID)
 }

@@ -63,7 +63,7 @@ func (f *FlowedgeRepository) GetFlowedgeByApplication(application string) (inter
 	return data, nil
 }
 
-func (f *FlowedgeRepository) CreateFlowedge(flowedge model.Flowedge) (int64, error) {
+func (f *FlowedgeRepository) CreateFlowedge(flowedge *model.Flowedge) (int64, error) {
 	query := "INSERT " +
 		"INTO flowedge(agent_id, hostname, version, status) VALUES (?, ?, ?, ?) " +
 		"ON DUPLICATE KEY UPDATE " +
@@ -75,11 +75,22 @@ func (f *FlowedgeRepository) CreateFlowedge(flowedge model.Flowedge) (int64, err
 	return result.LastInsertId()
 }
 
-func (f *FlowedgeRepository) UpdateFlowedgeLastHeartBeat(flow model.Flowedge) (int64, error) {
+func (f *FlowedgeRepository) UpdateFlowedgeLastHeartBeat(flow *model.Flowedge) (int64, error) {
 	query := "UPDATE " +
 		"flowedge SET last_heartbeat = ? " +
 		"WHERE agent_id = ?"
 	result, err := MysqlClient.Exec(query, flow.LastHeartBeat, flow.AgentID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (f *FlowedgeRepository) UpdateFlowedgeApplication(flow *model.Flowedge) (int64, error) {
+	query := "UPDATE " +
+		"flowedge SET application = ? " +
+		"WHERE agent_id = ?"
+	result, err := MysqlClient.Exec(query, flow.Application, flow.AgentID)
 	if err != nil {
 		return 0, err
 	}

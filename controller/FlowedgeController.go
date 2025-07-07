@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"devflow/model"
 	"devflow/service"
 	"devflow/utils"
 	"github.com/gin-gonic/gin"
@@ -57,4 +58,25 @@ func (crtl *FlowEdgeController) GetFlowedgesByApplication(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, utils.Success(flowedges))
+}
+
+func (crtl *FlowEdgeController) UpdateFlowedgeApplicationByAgentID(c *gin.Context) {
+	agentID := c.Param("flowedge")
+	if agentID == "" {
+		c.JSON(400, utils.Error(1, "agentID不能为空", nil))
+		return
+	}
+	req := &model.Flowedge{}
+	err := c.ShouldBindJSON(req)
+	if err != nil {
+		c.JSON(400, utils.Error(1, err.Error(), err))
+		return
+	}
+	req.AgentID = agentID
+	result, err := crtl.FlowedgeService.UpdateApplication(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(result))
 }

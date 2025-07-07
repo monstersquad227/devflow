@@ -66,5 +66,6 @@ type FlowedgeServiceInterface interface {
 	List(pageNumber, pageSize int) ([]*model.Flowedge, error)
 	Count() (int, error)
 	FetchFlowedgesByApplication(application string) (interface{}, error)
-	Create(flowedge model.Flowedge) (int64, error)
+	Create(flowedge *model.Flowedge) (int64, error)
+	UpdateApplication(flowedge *model.Flowedge) (int64, error)
 }
