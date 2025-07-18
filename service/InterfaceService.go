@@ -5,6 +5,12 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+type UserServiceInterface interface {
+	Login(account, password string) (interface{}, interface{}, error)
+	List() ([]*model.User, error)
+	UserPermission(account string) (interface{}, error)
+}
+
 type ProjectServiceInterface interface {
 	List(pageNumber, pageSize int) ([]*model.Project, error)
 	Count() (int, error)
@@ -35,6 +41,7 @@ type VmServiceInterface interface {
 	FetchVmPasswordById(id int) (string, error)
 	FetchVmsByApplication(application string) (interface{}, error)
 	CreateAliyunVm(vm *model.Vm) (int64, error)
+	FetchUserByVm(id int) ([]*model.User, error)
 }
 
 type ImageServiceInterface interface {

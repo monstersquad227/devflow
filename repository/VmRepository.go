@@ -1,13 +1,14 @@
 package repository
 
 import (
+	"database/sql"
 	"devflow/model"
 	"fmt"
 )
 
 type VmRepository struct{}
 
-func (receiver *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error) {
+func (repo *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error) {
 	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, created_at, updated_at " +
 		"FROM vm WHERE is_deleted = 0 " +
 		"ORDER BY " +
@@ -46,7 +47,7 @@ func (receiver *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, er
 	return data, nil
 }
 
-func (receiver *VmRepository) CountVms() (int, error) {
+func (repo *VmRepository) CountVms() (int, error) {
 	query := "SELECT count(id) " +
 		"FROM vm WHERE is_deleted = 0 "
 	var count int
@@ -56,7 +57,7 @@ func (receiver *VmRepository) CountVms() (int, error) {
 	return count, nil
 }
 
-func (receiver *VmRepository) CreateVm(vm *model.Vm) (int64, error) {
+func (repo *VmRepository) CreateVm(vm *model.Vm) (int64, error) {
 	query := "INSERT " +
 		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, password) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -71,7 +72,7 @@ func (receiver *VmRepository) CreateVm(vm *model.Vm) (int64, error) {
 	return id, nil
 }
 
-func (receiver *VmRepository) UpdateVm(vm *model.Vm) (int64, error) {
+func (repo *VmRepository) UpdateVm(vm *model.Vm) (int64, error) {
 	query := "UPDATE vm " +
 		"SET instance_name = ?, private_ip = ?, public_ip = ?, spec = ?, application = ?, region = ?, cloud_provider = ?, os = ? " +
 		"WHERE id = ?"
@@ -82,7 +83,7 @@ func (receiver *VmRepository) UpdateVm(vm *model.Vm) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (receiver *VmRepository) DeleteVm(id int) (int64, error) {
+func (repo *VmRepository) DeleteVm(id int) (int64, error) {
 	query := "UPDATE vm " +
 		"SET is_deleted = 1 WHERE id = ?"
 	result, err := MysqlClient.Exec(query, id)
@@ -92,7 +93,7 @@ func (receiver *VmRepository) DeleteVm(id int) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (receiver *VmRepository) GetVmPasswordById(id int) (string, error) {
+func (repo *VmRepository) GetVmPasswordById(id int) (string, error) {
 	var password string
 	query := "SELECT password " +
 		"FROM vm WHERE id = ?"
@@ -102,7 +103,7 @@ func (receiver *VmRepository) GetVmPasswordById(id int) (string, error) {
 	return password, nil
 }
 
-func (receiver *VmRepository) GetVmsByApplication(application string) (interface{}, error) {
+func (repo *VmRepository) GetVmsByApplication(application string) (interface{}, error) {
 	query := "SELECT private_ip, public_ip, instance_name " +
 		"FROM vm WHERE application = ?"
 	rows, err := MysqlClient.Query(query, application)
@@ -125,7 +126,7 @@ func (receiver *VmRepository) GetVmsByApplication(application string) (interface
 	return data, nil
 }
 
-func (receiver *VmRepository) GetCloudProviderById(id int) (string, error) {
+func (repo *VmRepository) GetCloudProviderById(id int) (string, error) {
 	var cloud string
 	query := "SELECT cloud_provider " +
 		"FROM vm WHERE id = ?"
@@ -136,7 +137,7 @@ func (receiver *VmRepository) GetCloudProviderById(id int) (string, error) {
 	return cloud, nil
 }
 
-func (receiver *VmRepository) GetInstanceIDById(id int) (string, error) {
+func (repo *VmRepository) GetInstanceIDById(id int) (string, error) {
 	var instanceId string
 	query := "SELECT instance_id " +
 		"FROM vm WHERE id = ?"
@@ -147,7 +148,7 @@ func (receiver *VmRepository) GetInstanceIDById(id int) (string, error) {
 	return instanceId, nil
 }
 
-func (receiver *VmRepository) GetRegionById(id int) (string, error) {
+func (repo *VmRepository) GetRegionById(id int) (string, error) {
 	var region string
 	query := "SELECT region " +
 		"FROM vm WHERE id = ?"
@@ -156,4 +157,35 @@ func (receiver *VmRepository) GetRegionById(id int) (string, error) {
 		return "", err
 	}
 	return region, nil
+}
+
+func (repo *VmRepository) GetUserByVm(id int) ([]*model.User, error) {
+	query := "SELECT " +
+		"    u.id, " +
+		"    u.name " +
+		"FROM " +
+		"    user u " +
+		"INNER JOIN " +
+		"    bastion b ON u.id = b.user_id " +
+		"WHERE " +
+		"    b.vm_id = ?;"
+	rows, err := MysqlClient.Query(query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err = rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
+	data := make([]*model.User, 0)
+	for rows.Next() {
+		obj := &model.User{}
+		if err = rows.Scan(&obj.ID, &obj.Name); err != nil {
+			return nil, err
+		}
+		data = append(data, obj)
+	}
+	return data, nil
 }

@@ -14,35 +14,35 @@ type VmService struct {
 	VmRepo *repository.VmRepository
 }
 
-func (service *VmService) List(pageNumber, pageSize int) ([]*model.Vm, error) {
-	return service.VmRepo.ListVms(pageNumber, pageSize)
+func (svc *VmService) List(pageNumber, pageSize int) ([]*model.Vm, error) {
+	return svc.VmRepo.ListVms(pageNumber, pageSize)
 }
 
-func (service *VmService) Count() (int, error) {
-	return service.VmRepo.CountVms()
+func (svc *VmService) Count() (int, error) {
+	return svc.VmRepo.CountVms()
 }
 
-func (service *VmService) Create(vm *model.Vm) (int64, error) {
+func (svc *VmService) Create(vm *model.Vm) (int64, error) {
 	encryptPassword, err := utils.EncryptAESGCM(vm.Password)
 	if err != nil {
 		return 0, err
 	}
 	vm.Password = encryptPassword
-	return service.VmRepo.CreateVm(vm)
+	return svc.VmRepo.CreateVm(vm)
 }
 
-func (service *VmService) Update(vm *model.Vm) (int64, error) {
-	return service.VmRepo.UpdateVm(vm)
+func (svc *VmService) Update(vm *model.Vm) (int64, error) {
+	return svc.VmRepo.UpdateVm(vm)
 }
 
-func (service *VmService) Delete(id int) (int64, error) {
-	cloudProvider, err := service.VmRepo.GetCloudProviderById(id)
+func (svc *VmService) Delete(id int) (int64, error) {
+	cloudProvider, err := svc.VmRepo.GetCloudProviderById(id)
 	if err != nil {
 		return 0, err
 	}
 
 	if cloudProvider == "aliyun" {
-		instanceID, err := service.VmRepo.GetInstanceIDById(id)
+		instanceID, err := svc.VmRepo.GetInstanceIDById(id)
 		if err != nil {
 			return 0, err
 		}
@@ -50,7 +50,7 @@ func (service *VmService) Delete(id int) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		regionID, err := service.VmRepo.GetRegionById(id)
+		regionID, err := svc.VmRepo.GetRegionById(id)
 		if err != nil {
 			return 0, err
 		}
@@ -65,11 +65,11 @@ func (service *VmService) Delete(id int) (int64, error) {
 		}
 	}
 
-	return service.VmRepo.DeleteVm(id)
+	return svc.VmRepo.DeleteVm(id)
 }
 
-func (service *VmService) FetchVmPasswordById(id int) (string, error) {
-	password, err := service.VmRepo.GetVmPasswordById(id)
+func (svc *VmService) FetchVmPasswordById(id int) (string, error) {
+	password, err := svc.VmRepo.GetVmPasswordById(id)
 	if err != nil {
 		return "", err
 	}
@@ -84,11 +84,11 @@ func (service *VmService) FetchVmPasswordById(id int) (string, error) {
 	return encodePassword, nil
 }
 
-func (service *VmService) FetchVmsByApplication(application string) (interface{}, error) {
-	return service.VmRepo.GetVmsByApplication(application)
+func (svc *VmService) FetchVmsByApplication(application string) (interface{}, error) {
+	return svc.VmRepo.GetVmsByApplication(application)
 }
 
-func (service *VmService) CreateAliyunVm(vm *model.Vm) (int64, error) {
+func (svc *VmService) CreateAliyunVm(vm *model.Vm) (int64, error) {
 	client, err := NewAliyunClient()
 	if err != nil {
 		return 0, err
@@ -136,5 +136,9 @@ func (service *VmService) CreateAliyunVm(vm *model.Vm) (int64, error) {
 	}
 	vm.Password = encryptPassword
 	vm.InstanceId = *instances
-	return service.VmRepo.CreateVm(vm)
+	return svc.VmRepo.CreateVm(vm)
+}
+
+func (svc *VmService) FetchUserByVm(id int) ([]*model.User, error) {
+	return svc.VmRepo.GetUserByVm(id)
 }

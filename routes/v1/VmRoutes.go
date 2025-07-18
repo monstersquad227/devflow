@@ -20,4 +20,5 @@ func VmRegister(api *gin.RouterGroup) {
 	api.DELETE("/vms/:vm", vmController.DeleteVm)                // √
 	api.GET("/vms/:vm/password", vmController.GetVmPasswordById) // √
 	api.GET("/vms/:vm", vmController.GetVmsByApplication)        // √
+	api.GET("/vms/:vm/users", vmController.GetUsersByVm)         // √
 }

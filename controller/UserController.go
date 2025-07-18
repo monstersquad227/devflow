@@ -9,10 +9,10 @@ import (
 )
 
 type UserController struct {
-	Service *service.UserService
+	UserService service.UserServiceInterface
 }
 
-func (controller *UserController) UserLogin(c *gin.Context) {
+func (ctrl *UserController) Login(c *gin.Context) {
 	var userReq struct {
 		Account  string `json:"account"`
 		Password string `json:"password"`
@@ -35,7 +35,7 @@ func (controller *UserController) UserLogin(c *gin.Context) {
 		return
 	}
 
-	token, info, err := controller.Service.UserLogin(string(account), string(password))
+	token, info, err := ctrl.UserService.Login(string(account), string(password))
 	if err != nil {
 		c.JSON(500, utils.Error(1, "登录失败: "+err.Error(), err))
 		return
@@ -47,9 +47,18 @@ func (controller *UserController) UserLogin(c *gin.Context) {
 	}))
 }
 
-func (controller *UserController) UserPermission(c *gin.Context) {
+func (ctrl *UserController) Users(c *gin.Context) {
+	result, err := ctrl.UserService.List()
+	if err != nil {
+		c.JSON(500, utils.Error(1, err.Error(), nil))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(result))
+}
+
+func (ctrl *UserController) Permission(c *gin.Context) {
 	account, _ := c.Get("account")
-	result, err := controller.Service.UserPermission(account.(string))
+	result, err := ctrl.UserService.UserPermission(account.(string))
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误", err))
 		return

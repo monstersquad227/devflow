@@ -2,6 +2,7 @@ package service
 
 import (
 	"devflow/config"
+	"devflow/model"
 	"devflow/repository"
 	"devflow/utils"
 	"errors"
@@ -9,10 +10,10 @@ import (
 )
 
 type UserService struct {
-	Repo *repository.UserRepository
+	UserRepo *repository.UserRepository
 }
 
-func (s *UserService) UserLogin(account, password string) (interface{}, interface{}, error) {
+func (repo *UserService) Login(account, password string) (interface{}, interface{}, error) {
 
 	if err := LdapClient.Bind(fmt.Sprintf("cn=%s,ou=%s,dc=%s,dc=%s",
 		account,
@@ -32,7 +33,7 @@ func (s *UserService) UserLogin(account, password string) (interface{}, interfac
 		return nil, nil, err
 	}
 
-	rows, err := s.Repo.UpdateTokenByAccount(account, encryptToken)
+	rows, err := repo.UserRepo.UpdateTokenByAccount(account, encryptToken)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -40,7 +41,7 @@ func (s *UserService) UserLogin(account, password string) (interface{}, interfac
 		return nil, nil, errors.New("数据库未更改")
 	}
 
-	result, err := s.Repo.GetUsers(account)
+	result, err := repo.UserRepo.GetUsers(account)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -48,10 +49,14 @@ func (s *UserService) UserLogin(account, password string) (interface{}, interfac
 	return token, result, nil
 }
 
-func (s *UserService) UserPermission(account string) (interface{}, error) {
-	return s.Repo.GetPermissions(account)
+func (repo *UserService) UserPermission(account string) (interface{}, error) {
+	return repo.UserRepo.GetPermissions(account)
 }
 
-func (s *UserService) UserRoles(account string) (interface{}, error) {
-	return s.Repo.GetRoles(account)
+func (repo *UserService) List() ([]*model.User, error) {
+	return repo.UserRepo.ListUsers()
+}
+
+func (repo *UserService) UserRoles(account string) (interface{}, error) {
+	return repo.UserRepo.GetRoles(account)
 }

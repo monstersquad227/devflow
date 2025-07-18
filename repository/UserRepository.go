@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"devflow/model"
 	"encoding/json"
 )
@@ -11,7 +12,7 @@ type UserRepository struct{}
 UpdateTokenByAccount 通过 account 更新 token 字段
 */
 
-func (r *UserRepository) UpdateTokenByAccount(account, token string) (int64, error) {
+func (repo *UserRepository) UpdateTokenByAccount(account, token string) (int64, error) {
 	query := "UPDATE user " +
 		"SET token = ? " +
 		"WHERE account = ?"
@@ -22,6 +23,31 @@ func (r *UserRepository) UpdateTokenByAccount(account, token string) (int64, err
 	}
 
 	return result.RowsAffected()
+}
+
+func (repo *UserRepository) ListUsers() ([]*model.User, error) {
+	query := "SELECT id, name " +
+		"FROM user"
+	rows, err := MysqlClient.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
+	data := make([]*model.User, 0)
+	for rows.Next() {
+		obj := &model.User{}
+		err := rows.Scan(&obj.ID, &obj.Name)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, obj)
+	}
+	return data, nil
 }
 
 func (r *UserRepository) GetUsers(account string) (interface{}, error) {
@@ -48,7 +74,7 @@ func (r *UserRepository) GetUsers(account string) (interface{}, error) {
 GetPermissions 通过 account 获取 permissions 字段
 */
 
-func (r *UserRepository) GetPermissions(account string) (interface{}, error) {
+func (repo *UserRepository) GetPermissions(account string) (interface{}, error) {
 	query := "SELECT permissions " +
 		"FROM user WHERE account = ?"
 	var str string
@@ -66,7 +92,7 @@ func (r *UserRepository) GetPermissions(account string) (interface{}, error) {
 GetRoles 通过 account 获取 roles 字段
 */
 
-func (r *UserRepository) GetRoles(account string) (interface{}, error) {
+func (repo *UserRepository) GetRoles(account string) (interface{}, error) {
 	query := "SELECT roles " +
 		"FROM user WHERE account = ?"
 	var str string
