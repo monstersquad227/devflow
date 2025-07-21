@@ -28,7 +28,8 @@ func (repo *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error)
 		"WHEN '2xlarge' THEN 5 " +
 		"WHEN 'ultra' THEN 6 " +
 		"ELSE 99 " +
-		"END ASC " +
+		"END ASC, " +
+		"id ASC " +
 		"LIMIT ? OFFSET ? "
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
 	if err != nil {
@@ -248,6 +249,6 @@ func (repo *VmRepository) UpdateUserByVm(vmID int, userIDs []int) (int64, error)
 	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
-	
+
 	return count, nil
 }
