@@ -174,3 +174,29 @@ func (ctrl *VmController) GetUsersByVm(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, utils.Success(result))
 }
+
+func (ctrl *VmController) UpdateUsersByVm(c *gin.Context) {
+	vm := c.Param("vm")
+	vmId, err := strconv.Atoi(vm)
+	if err != nil {
+		c.JSON(400, utils.Error(1, err.Error(), nil))
+		return
+	}
+
+	type tmp struct {
+		Users []int `json:"users"`
+	}
+
+	req := &tmp{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.JSON(400, utils.Error(1, err.Error(), nil))
+		return
+	}
+
+	result, err := ctrl.VmService.SetAssignUsersToVm(vmId, req.Users)
+	if err != nil {
+		c.JSON(500, utils.Error(1, err.Error(), nil))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(result))
+}

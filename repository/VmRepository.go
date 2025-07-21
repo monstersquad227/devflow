@@ -189,3 +189,65 @@ func (repo *VmRepository) GetUserByVm(id int) ([]*model.User, error) {
 	}
 	return data, nil
 }
+
+func (repo *VmRepository) UpdateUserByVm(vmID int, userIDs []int) (int64, error) {
+	deleteSql := "DELETE " +
+		"FROM bastion " +
+		"WHERE " +
+		"	vm_id = ?"
+	insertSql := "INSERT " +
+		"INTO bastion(vm_id, user_id) " +
+		"VALUES(?, ?);"
+
+	tx, err := MysqlClient.Begin()
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = tx.Exec(deleteSql, vmID)
+	if err != nil {
+		err := tx.Rollback()
+		if err != nil {
+			return 0, err
+		}
+		return 0, err
+	}
+
+	if len(userIDs) == 0 {
+		return 0, tx.Commit()
+	}
+
+	stmt, err := tx.Prepare(insertSql)
+	if err != nil {
+		err := tx.Rollback()
+		if err != nil {
+			return 0, err
+		}
+		return 0, err
+	}
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			return
+		}
+	}(stmt)
+
+	var count int64
+	for _, userID := range userIDs {
+		res, err := stmt.Exec(vmID, userID)
+		if err != nil {
+			err := tx.Rollback()
+			if err != nil {
+				return 0, err
+			}
+			return 0, err
+		}
+		rows, _ := res.RowsAffected()
+		count += rows
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	
+	return count, nil
+}

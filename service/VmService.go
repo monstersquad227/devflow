@@ -142,3 +142,7 @@ func (svc *VmService) CreateAliyunVm(vm *model.Vm) (int64, error) {
 func (svc *VmService) FetchUserByVm(id int) ([]*model.User, error) {
 	return svc.VmRepo.GetUserByVm(id)
 }
+
+func (svc *VmService) SetAssignUsersToVm(id int, users []int) (int64, error) {
+	return svc.VmRepo.UpdateUserByVm(id, users)
+}

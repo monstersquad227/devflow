@@ -42,6 +42,7 @@ type VmServiceInterface interface {
 	FetchVmsByApplication(application string) (interface{}, error)
 	CreateAliyunVm(vm *model.Vm) (int64, error)
 	FetchUserByVm(id int) ([]*model.User, error)
+	SetAssignUsersToVm(id int, users []int) (int64, error)
 }
 
 type ImageServiceInterface interface {
