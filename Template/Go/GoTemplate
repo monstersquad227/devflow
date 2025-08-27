@@ -45,12 +45,13 @@ pipeline {
                     echo \"
                         FROM ${image_source}
                         WORKDIR /opt
-                        ADD ./dist ./
+                        COPY ./config ./config
+                        COPY ./main ./
+                        ENTRYPOINT ["./main"]
                     \" > Dockerfile
                 """
             }
         }
-
         stage('Build') {
             steps {
                 sh """

@@ -1,12 +1,11 @@
 logs
+test
+.idea
+.scannerwork
 
 fatconfig
 devconfig
 uatconfig
 fortconfig
-
-test
-
-.idea
 
 config/config.ini
