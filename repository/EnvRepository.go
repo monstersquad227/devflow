@@ -5,7 +5,7 @@ import "devflow/model"
 type EnvRepository struct{}
 
 func (e *EnvRepository) ListEnvs(pageNumber, pageSize int) ([]*model.Env, error) {
-	query := "SELECT id, name, created_by, updated_by, created_at, updated_at " +
+	query := "SELECT id, name, remark, created_by, updated_by, created_at, updated_at " +
 		"FROM env WHERE is_deleted = 0 LIMIT ? OFFSET ?"
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
 	if err != nil {
@@ -15,7 +15,7 @@ func (e *EnvRepository) ListEnvs(pageNumber, pageSize int) ([]*model.Env, error)
 
 	for rows.Next() {
 		obj := &model.Env{}
-		if err = rows.Scan(&obj.Id, &obj.Name, &obj.CreatedBy, &obj.UpdatedBy, &obj.CreatedAt, &obj.UpdatedAt); err != nil {
+		if err = rows.Scan(&obj.Id, &obj.Name, &obj.Remark, &obj.CreatedBy, &obj.UpdatedBy, &obj.CreatedAt, &obj.UpdatedAt); err != nil {
 			return nil, err
 		}
 		data = append(data, obj)

@@ -3,6 +3,7 @@ package model
 type Env struct {
 	Id        int    `json:"id,omitempty"`
 	Name      string `json:"name,omitempty"`
+	Remark    string `json:"remark,omitempty"`
 	CreatedBy string `json:"created_by,omitempty"`
 	UpdatedBy string `json:"updated_by,omitempty"`
 	IsDeleted int    `json:"is_deleted,omitempty"`
