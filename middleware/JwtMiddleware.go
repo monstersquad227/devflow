@@ -12,6 +12,7 @@ var whiteList = map[string]bool{
 	"/devflow/demo/testPost":   true,
 	"/devflow/actuator/health": true,
 	"/devflow/user/login":      true,
+	"/devflow/metrics":         true,
 }
 
 // Jwt 鉴权中间件

@@ -3,6 +3,7 @@ package v1
 import (
 	"devflow/config"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 )
 
@@ -26,4 +27,6 @@ func BasicRegister(api *gin.RouterGroup) {
 	api.GET("/actuator/health", func(c *gin.Context) {
 		c.String(http.StatusOK, config.GlobalConfig.Application.Name+" OK")
 	})
+
+	api.GET("/metrics", gin.WrapH(promhttp.Handler()))
 }
