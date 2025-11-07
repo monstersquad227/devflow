@@ -69,9 +69,9 @@ func (t *TaskController) CreateTask(c *gin.Context) {
 }
 
 func (t *TaskController) UpdateTask(c *gin.Context) {
-	taskId := c.Param("task")
+	taskId := c.Param("id")
 	if taskId == "" {
-		c.JSON(400, utils.Error(1, "参数为空", errors.New("task 参数不能为空")))
+		c.JSON(400, utils.Error(1, "参数为空", errors.New("id 参数不能为空")))
 		return
 	}
 
@@ -96,9 +96,9 @@ func (t *TaskController) UpdateTask(c *gin.Context) {
 }
 
 func (t *TaskController) DeleteTask(c *gin.Context) {
-	taskId := c.Param("task")
+	taskId := c.Param("id")
 	if taskId == "" {
-		c.JSON(400, utils.Error(1, "参数为空", errors.New("task 参数不能为空")))
+		c.JSON(400, utils.Error(1, "参数为空", errors.New("id 参数不能为空")))
 		return
 	}
 

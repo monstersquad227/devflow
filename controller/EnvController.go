@@ -67,7 +67,7 @@ func (crtl *EnvController) CreateEnv(c *gin.Context) {
 }
 
 func (crtl *EnvController) DeleteEnv(c *gin.Context) {
-	envId := c.Param("env")
+	envId := c.Param("id")
 	if envId == "" {
 		c.JSON(400, utils.Error(1, "参数错误: env", nil))
 		return
@@ -88,7 +88,7 @@ func (crtl *EnvController) DeleteEnv(c *gin.Context) {
 }
 
 func (crtl *EnvController) UpdateEnv(c *gin.Context) {
-	envId := c.Param("env")
+	envId := c.Param("id")
 	req := &model.Env{}
 	if err := c.ShouldBind(req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON错误: "+err.Error(), err))
@@ -115,8 +115,8 @@ func (crtl *EnvController) UpdateEnv(c *gin.Context) {
 	}))
 }
 
-func (crtl *EnvController) GetNamespacesByEnv(c *gin.Context) {
-	env := c.Param("env")
+func (crtl *EnvController) GetNamespaces(c *gin.Context) {
+	env := c.Param("id")
 	result, err := crtl.EnvService.GetNsByEnv(env)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败: "+err.Error(), err))

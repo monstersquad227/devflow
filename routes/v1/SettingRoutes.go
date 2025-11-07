@@ -8,6 +8,7 @@ import (
 )
 
 func SettingRegister(api *gin.RouterGroup) {
+	// 初始化控制器
 	envController := &controller.EnvController{
 		EnvService: &service.EnvService{
 			EnvRepository: &repository.EnvRepository{},
@@ -26,19 +27,31 @@ func SettingRegister(api *gin.RouterGroup) {
 		},
 	}
 
-	api.GET("/setting/envs", envController.ListEnvs)
-	api.POST("/setting/envs", envController.CreateEnv)
-	api.PUT("/setting/envs/:env", envController.UpdateEnv)
-	api.DELETE("/setting/envs/:env", envController.DeleteEnv)
-	api.GET("/setting/envs/:env/namespaces", envController.GetNamespacesByEnv)
+	// 环境管理路由
+	envRoutes := api.Group("/setting/envs")
+	{
+		envRoutes.GET("", envController.ListEnvs)                     // 获取环境列表
+		envRoutes.POST("", envController.CreateEnv)                   // 创建环境
+		envRoutes.PUT("/:id", envController.UpdateEnv)                // 更新环境
+		envRoutes.DELETE("/:id", envController.DeleteEnv)             // 删除环境
+		envRoutes.GET("/:id/namespaces", envController.GetNamespaces) // 获取环境的命名空间
+	}
 
-	api.GET("/setting/images", imageController.ListImages)            // √
-	api.POST("/setting/images", imageController.CreateImage)          // √
-	api.DELETE("/setting/images/:image", imageController.DeleteImage) //√
-	api.PUT("/setting/images/:image", imageController.UpdateImage)    // √
+	// 镜像管理路由
+	imageRoutes := api.Group("/setting/images")
+	{
+		imageRoutes.GET("", imageController.ListImages)         // 获取镜像列表
+		imageRoutes.POST("", imageController.CreateImage)       // 创建镜像
+		imageRoutes.PUT("/:id", imageController.UpdateImage)    // 更新镜像
+		imageRoutes.DELETE("/:id", imageController.DeleteImage) // 删除镜像
+	}
 
-	api.GET("/setting/tasks", taskController.ListTasks)
-	api.POST("/setting/tasks", taskController.CreateTask)
-	api.PUT("/setting/tasks/:task", taskController.UpdateTask)
-	api.DELETE("/setting/tasks/:task", taskController.DeleteTask)
+	// 任务管理路由
+	taskRoutes := api.Group("/setting/tasks")
+	{
+		taskRoutes.GET("", taskController.ListTasks)         // 获取任务列表
+		taskRoutes.POST("", taskController.CreateTask)       // 创建任务
+		taskRoutes.PUT("/:id", taskController.UpdateTask)    // 更新任务
+		taskRoutes.DELETE("/:id", taskController.DeleteTask) // 删除任务
+	}
 }

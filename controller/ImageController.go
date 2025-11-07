@@ -66,7 +66,7 @@ func (i *ImagesController) CreateImage(c *gin.Context) {
 }
 
 func (i *ImagesController) UpdateImage(c *gin.Context) {
-	imageId := c.Param("image")
+	imageId := c.Param("id")
 	if imageId == "" {
 		c.JSON(400, utils.Error(1, "参数错误", errors.New("image 参数不为空")))
 		return
@@ -98,9 +98,9 @@ func (i *ImagesController) UpdateImage(c *gin.Context) {
 }
 
 func (i *ImagesController) DeleteImage(c *gin.Context) {
-	imageId := c.Param("image")
+	imageId := c.Param("id")
 	if imageId == "" {
-		c.JSON(400, utils.Error(1, "参数错误", errors.New("image 参数不为空")))
+		c.JSON(400, utils.Error(1, "参数错误", errors.New("id 参数不为空")))
 		return
 	}
 
