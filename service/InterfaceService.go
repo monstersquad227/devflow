@@ -3,6 +3,7 @@ package service
 import (
 	"devflow/model"
 	"github.com/xanzy/go-gitlab"
+	v1 "k8s.io/api/core/v1"
 )
 
 type UserServiceInterface interface {
@@ -53,13 +54,25 @@ type ImageServiceInterface interface {
 	Delete(id int) (int64, error)
 }
 
+// EnvServiceInterface 定义环境管理服务的接口
 type EnvServiceInterface interface {
+	// List 分页查询环境列表
 	List(pageNumber, pageSize int) ([]*model.Env, error)
+
+	// Count 统计环境总数
 	Count() (int, error)
-	Create(env *model.Env) (int64, error)
+
+	// Create 创建新环境
+	Create(env *model.EnvCreateRequest) (*model.EnvCreateResponse, error)
+
+	// Update 更新环境信息
 	Update(env *model.Env) (int64, error)
+
+	// Delete 删除指定ID的环境
 	Delete(id int) (int64, error)
-	GetNsByEnv(env string) (interface{}, error)
+
+	// GetNamespaces 获取指定环境下的所有命名空间
+	GetNamespaces(env string) ([]v1.Namespace, error)
 }
 
 type TaskServiceInterface interface {

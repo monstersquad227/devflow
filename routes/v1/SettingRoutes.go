@@ -8,12 +8,12 @@ import (
 )
 
 func SettingRegister(api *gin.RouterGroup) {
-	// 初始化控制器
-	envController := &controller.EnvController{
-		EnvService: &service.EnvService{
-			EnvRepository: &repository.EnvRepository{},
-		},
-	}
+	// envController 初始化
+	envController := controller.NewEnvController(
+		service.NewEnvService(
+			repository.NewEnvRepository(),
+		),
+	)
 
 	imageController := &controller.ImagesController{
 		ImageService: &service.ImageService{
@@ -30,10 +30,10 @@ func SettingRegister(api *gin.RouterGroup) {
 	// 环境管理路由
 	envRoutes := api.Group("/setting/envs")
 	{
-		envRoutes.GET("", envController.ListEnvs)                     // 获取环境列表
-		envRoutes.POST("", envController.CreateEnv)                   // 创建环境
-		envRoutes.PUT("/:id", envController.UpdateEnv)                // 更新环境
-		envRoutes.DELETE("/:id", envController.DeleteEnv)             // 删除环境
+		envRoutes.GET("", envController.List)                         // 获取环境列表
+		envRoutes.POST("", envController.Create)                      // 创建环境
+		envRoutes.PUT("/:id", envController.Update)                   // 更新环境
+		envRoutes.DELETE("/:id", envController.Delete)                // 删除环境
 		envRoutes.GET("/:id/namespaces", envController.GetNamespaces) // 获取环境的命名空间
 	}
 

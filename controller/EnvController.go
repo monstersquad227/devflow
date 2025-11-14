@@ -9,11 +9,20 @@ import (
 	"strconv"
 )
 
+// EnvController 环境管理控制器
 type EnvController struct {
 	EnvService service.EnvServiceInterface
 }
 
-func (crtl *EnvController) ListEnvs(c *gin.Context) {
+// NewEnvController 创建环境控制器实例
+func NewEnvController(svc service.EnvServiceInterface) *EnvController {
+	return &EnvController{
+		EnvService: svc,
+	}
+}
+
+// List 获取环境列表
+func (crtl *EnvController) List(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -46,8 +55,9 @@ func (crtl *EnvController) ListEnvs(c *gin.Context) {
 	}))
 }
 
-func (crtl *EnvController) CreateEnv(c *gin.Context) {
-	req := &model.Env{}
+// Create 创建新环境
+func (crtl *EnvController) Create(c *gin.Context) {
+	req := &model.EnvCreateRequest{}
 	if err := c.ShouldBind(req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON错误", nil))
 		return
@@ -56,38 +66,16 @@ func (crtl *EnvController) CreateEnv(c *gin.Context) {
 	req.CreatedBy = account.(string)
 	req.UpdatedBy = account.(string)
 
-	lastId, err := crtl.EnvService.Create(req)
+	result, err := crtl.EnvService.Create(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
-	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
-		"lastInsertId": lastId,
-	}))
+	c.JSON(http.StatusOK, utils.Success(result))
 }
 
-func (crtl *EnvController) DeleteEnv(c *gin.Context) {
-	envId := c.Param("id")
-	if envId == "" {
-		c.JSON(400, utils.Error(1, "参数错误: env", nil))
-		return
-	}
-	id, err := strconv.Atoi(envId)
-	if err != nil {
-		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
-		return
-	}
-	rowAffected, err := crtl.EnvService.Delete(id)
-	if err != nil {
-		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
-		return
-	}
-	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
-		"rowAffected": rowAffected,
-	}))
-}
-
-func (crtl *EnvController) UpdateEnv(c *gin.Context) {
+// Update 更新环境信息
+func (crtl *EnvController) Update(c *gin.Context) {
 	envId := c.Param("id")
 	req := &model.Env{}
 	if err := c.ShouldBind(req); err != nil {
@@ -115,9 +103,32 @@ func (crtl *EnvController) UpdateEnv(c *gin.Context) {
 	}))
 }
 
+// Delete 删除环境
+func (crtl *EnvController) Delete(c *gin.Context) {
+	envId := c.Param("id")
+	if envId == "" {
+		c.JSON(400, utils.Error(1, "参数错误: env", nil))
+		return
+	}
+	id, err := strconv.Atoi(envId)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
+		return
+	}
+	rowAffected, err := crtl.EnvService.Delete(id)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"rowAffected": rowAffected,
+	}))
+}
+
+// GetNamespaces 获取环境的命名空间列表
 func (crtl *EnvController) GetNamespaces(c *gin.Context) {
 	env := c.Param("id")
-	result, err := crtl.EnvService.GetNsByEnv(env)
+	result, err := crtl.EnvService.GetNamespaces(env)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败: "+err.Error(), err))
 		return

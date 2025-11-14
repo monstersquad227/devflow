@@ -4,10 +4,17 @@ import "devflow/model"
 
 type EnvRepository struct{}
 
+// NewEnvRepository 构造函数，使用依赖注入
+func NewEnvRepository() *EnvRepository {
+	return &EnvRepository{}
+}
+
 func (e *EnvRepository) ListEnvs(pageNumber, pageSize int) ([]*model.Env, error) {
 	query := "SELECT id, name, remark, created_by, updated_by, created_at, updated_at " +
 		"FROM env WHERE is_deleted = 0 LIMIT ? OFFSET ?"
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
+	defer rows.Close()
+
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +43,7 @@ func (e *EnvRepository) CountEnvs() (int, error) {
 	return count, nil
 }
 
-func (e *EnvRepository) CreateEnv(env *model.Env) (int64, error) {
+func (e *EnvRepository) CreateEnv(env *model.EnvCreateRequest) (int64, error) {
 	query := "INSERT " +
 		"INTO env(name, created_by, updated_by) VALUES (?, ?, ?)"
 	result, err := MysqlClient.Exec(query, env.Name, env.CreatedBy, env.UpdatedBy)

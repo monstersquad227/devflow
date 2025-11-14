@@ -10,3 +10,13 @@ type Env struct {
 	CreatedAt string `json:"created_at,omitempty"`
 	UpdatedAt string `json:"updated_at,omitempty"`
 }
+
+type EnvCreateRequest struct {
+	Name      string `json:"name" binding:"required,min=2,max=50"`
+	CreatedBy string `json:"created_by"`
+	UpdatedBy string `json:"updated_by"`
+}
+
+type EnvCreateResponse struct {
+	LastInsertId int64 `json:"last_insert_id"`
+}
