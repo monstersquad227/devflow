@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"devflow/config"
+	"devflow/httpclient"
 	"devflow/model"
 	"devflow/repository"
 	"devflow/utils"
@@ -25,6 +26,11 @@ import (
 	"strconv"
 	"sync"
 	"time"
+)
+
+var (
+	// 创建全局 HTTP 客户端
+	httpClient = httpclient.NewHTTPClient(30 * time.Second)
 )
 
 type ProjectService struct {
@@ -340,7 +346,7 @@ func (svc *ProjectService) ListProjectImageTags(projectName, env string) (interf
 	return harborTagArray, nil
 }
 
-func (svc *ProjectService) ListProjectImageTagsV2(projectName, env string) (interface{}, error) {
+func (svc *ProjectService) ListProjectImageTagsV3(projectName, env string) (interface{}, error) {
 	url := config.GlobalConfig.Harbor.URL + "/api/v2.0/projects/" + env + "/repositories/" + projectName + "/artifacts"
 	fmt.Println(url)
 	req, err := http.NewRequest("GET", url, nil)
@@ -373,6 +379,57 @@ func (svc *ProjectService) ListProjectImageTagsV2(projectName, env string) (inte
 		return nil, err
 	}
 
+	var harborTags []harborTag
+	for _, art := range artifacts {
+		for _, tg := range art.Tags {
+			harborTags = append(harborTags, harborTag{Name: tg.Name})
+		}
+	}
+
+	return harborTags, nil
+}
+
+func (svc *ProjectService) ListProjectImageTagsV2(projectName, env string) (interface{}, error) {
+	// 构建 URL
+	url := fmt.Sprintf("%s/api/v2.0/projects/%s/repositories/%s/artifacts",
+		config.GlobalConfig.Harbor.URL, env, projectName)
+	// 创建请求
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
+	// 设置认证
+	auth := base64.StdEncoding.EncodeToString(
+		[]byte(config.GlobalConfig.Harbor.Username + ":" + config.GlobalConfig.Harbor.Password))
+	req.Header.Set("Authorization", "Basic "+auth)
+
+	// ✅ 使用工具类，自动记录日志
+	body, statusCode, err := httpClient.DoRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// 检查状态码
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("harbor API 返回错误: %d, %s", statusCode, string(body))
+	}
+
+	// 解析响应
+	type tag struct {
+		Name string `json:"name"`
+	}
+	type artifact struct {
+		Tags []tag `json:"tags"`
+	}
+	var artifacts []artifact
+	if err := json.Unmarshal(body, &artifacts); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %w", err)
+	}
+
+	// 提取标签
+	type harborTag struct {
+		Name string `json:"name"`
+	}
 	var harborTags []harborTag
 	for _, art := range artifacts {
 		for _, tg := range art.Tags {
