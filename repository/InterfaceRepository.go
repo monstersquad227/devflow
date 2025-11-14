@@ -19,3 +19,32 @@ type EnvRepositoryInterface interface {
 	// UpdateEnv 更新环境
 	UpdateEnv(env *model.Env) (int64, error)
 }
+
+type ImageRepositoryInterface interface {
+	// ListImages 分页查询镜像列表
+	ListImages(pageNumber, pageSize int) ([]*model.Image, error)
+
+	// CountImages 统计镜像总数
+	CountImages() (int, error)
+
+	// CreateImage 创建镜像
+	CreateImage(image *model.Image) (int64, error)
+
+	// UpdateImage 更新镜像
+	UpdateImage(image *model.Image) (int64, error)
+
+	// DeleteImage 删除镜像
+	DeleteImage(id int) (int64, error)
+
+	// GetImageName 通过镜像ID获取镜像名称
+	GetImageName(id int) (string, error)
+}
+
+type TaskRepositoryInterface interface {
+	ListTasks(pageNumber, pageSize int) ([]*model.Task, error)
+	CountTasks() (int, error)
+	CreateTask(task *model.Task) (int64, error)
+	DeleteTask(id int) (int64, error)
+	UpdateTask(task *model.Task) (int64, error)
+	GetTaskNameANDImageIDById(id int) (string, int, error)
+}

@@ -15,17 +15,19 @@ func SettingRegister(api *gin.RouterGroup) {
 		),
 	)
 
-	imageController := &controller.ImagesController{
-		ImageService: &service.ImageService{
-			ImageRepository: &repository.ImageRepository{},
-		},
-	}
+	// imageController 初始化
+	imageController := controller.NewImagesController(
+		service.NewImageService(
+			repository.NewImageRepository(),
+		),
+	)
 
-	taskController := &controller.TaskController{
-		TaskService: &service.TaskService{
-			TaskRepository: &repository.TaskRepository{},
-		},
-	}
+	// taskController 初始化
+	taskController := controller.NewTaskController(
+		service.NewTaskService(
+			repository.NewTaskRepository(),
+		),
+	)
 
 	// 环境管理路由
 	envRoutes := api.Group("/setting/envs")
@@ -40,18 +42,18 @@ func SettingRegister(api *gin.RouterGroup) {
 	// 镜像管理路由
 	imageRoutes := api.Group("/setting/images")
 	{
-		imageRoutes.GET("", imageController.ListImages)         // 获取镜像列表
-		imageRoutes.POST("", imageController.CreateImage)       // 创建镜像
-		imageRoutes.PUT("/:id", imageController.UpdateImage)    // 更新镜像
-		imageRoutes.DELETE("/:id", imageController.DeleteImage) // 删除镜像
+		imageRoutes.GET("", imageController.List)          // 获取镜像列表
+		imageRoutes.POST("", imageController.Create)       // 创建镜像
+		imageRoutes.PUT("/:id", imageController.Update)    // 更新镜像
+		imageRoutes.DELETE("/:id", imageController.Delete) // 删除镜像
 	}
 
 	// 任务管理路由
 	taskRoutes := api.Group("/setting/tasks")
 	{
-		taskRoutes.GET("", taskController.ListTasks)         // 获取任务列表
-		taskRoutes.POST("", taskController.CreateTask)       // 创建任务
-		taskRoutes.PUT("/:id", taskController.UpdateTask)    // 更新任务
-		taskRoutes.DELETE("/:id", taskController.DeleteTask) // 删除任务
+		taskRoutes.GET("", taskController.List)          // 获取任务列表
+		taskRoutes.POST("", taskController.Create)       // 创建任务
+		taskRoutes.PUT("/:id", taskController.Update)    // 更新任务
+		taskRoutes.DELETE("/:id", taskController.Delete) // 删除任务
 	}
 }

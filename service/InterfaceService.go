@@ -46,11 +46,21 @@ type VmServiceInterface interface {
 	SetAssignUsersToVm(id int, users []int) (int64, error)
 }
 
+// ImageServiceInterface 定义镜像管理服务的接口
 type ImageServiceInterface interface {
+	// List 分页查询镜像列表
 	List(pageNumber, pageSize int) ([]*model.Image, error)
+
+	// Count 统计镜像总数
 	Count() (int, error)
+
+	// Create 创建新镜像
 	Create(image *model.Image) (int64, error)
+
+	// Update 更新镜像信息
 	Update(image *model.Image) (int64, error)
+
+	// Delete 删除指定ID的镜像
 	Delete(id int) (int64, error)
 }
 

@@ -4,6 +4,10 @@ import "devflow/model"
 
 type TaskRepository struct{}
 
+func NewTaskRepository() *TaskRepository {
+	return &TaskRepository{}
+}
+
 func (t *TaskRepository) ListTasks(pageNumber, pageSize int) ([]*model.Task, error) {
 	query := "SELECT id, name, image_id, created_by, updated_by, created_at, updated_at " +
 		"FROM task WHERE is_deleted = 0 LIMIT ? OFFSET ?"

@@ -6,7 +6,13 @@ import (
 )
 
 type ImageService struct {
-	ImageRepository *repository.ImageRepository
+	ImageRepository repository.ImageRepositoryInterface
+}
+
+func NewImageService(repo repository.ImageRepositoryInterface) *ImageService {
+	return &ImageService{
+		ImageRepository: repo,
+	}
 }
 
 func (i *ImageService) List(pageNumber, pageSize int) ([]*model.Image, error) {

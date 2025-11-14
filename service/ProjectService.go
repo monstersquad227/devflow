@@ -78,6 +78,7 @@ func (svc *ProjectService) Update(project *model.Project) (int64, error) {
 func (svc *ProjectService) Delete(id int) (int64, error) {
 	return svc.Repo.DeleteProject(id)
 }
+
 func (svc *ProjectService) ListProjectApplications() ([]*model.Project, error) {
 	return svc.Repo.ListProjectApplications()
 }
@@ -111,7 +112,7 @@ func (svc *ProjectService) Build(params *model.BuildParams, projectID int) (int6
 	}
 
 	// 镜像名称
-	imageName, err := svc.ImageRepo.GetImageNameById(imageId)
+	imageName, err := svc.ImageRepo.GetImageName(imageId)
 	if err != nil {
 		return 0, err
 	}

@@ -14,7 +14,13 @@ type ImagesController struct {
 	ImageService service.ImageServiceInterface
 }
 
-func (i *ImagesController) ListImages(c *gin.Context) {
+func NewImagesController(svc service.ImageServiceInterface) *ImagesController {
+	return &ImagesController{
+		ImageService: svc,
+	}
+}
+
+func (i *ImagesController) List(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -45,7 +51,7 @@ func (i *ImagesController) ListImages(c *gin.Context) {
 	}))
 }
 
-func (i *ImagesController) CreateImage(c *gin.Context) {
+func (i *ImagesController) Create(c *gin.Context) {
 	req := &model.Image{}
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON 错误: "+err.Error(), err))
@@ -65,7 +71,7 @@ func (i *ImagesController) CreateImage(c *gin.Context) {
 	}))
 }
 
-func (i *ImagesController) UpdateImage(c *gin.Context) {
+func (i *ImagesController) Update(c *gin.Context) {
 	imageId := c.Param("id")
 	if imageId == "" {
 		c.JSON(400, utils.Error(1, "参数错误", errors.New("image 参数不为空")))
@@ -97,7 +103,7 @@ func (i *ImagesController) UpdateImage(c *gin.Context) {
 	}))
 }
 
-func (i *ImagesController) DeleteImage(c *gin.Context) {
+func (i *ImagesController) Delete(c *gin.Context) {
 	imageId := c.Param("id")
 	if imageId == "" {
 		c.JSON(400, utils.Error(1, "参数错误", errors.New("id 参数不为空")))

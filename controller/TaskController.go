@@ -14,7 +14,13 @@ type TaskController struct {
 	TaskService service.TaskServiceInterface
 }
 
-func (t *TaskController) ListTasks(c *gin.Context) {
+func NewTaskController(svc service.TaskServiceInterface) *TaskController {
+	return &TaskController{
+		TaskService: svc,
+	}
+}
+
+func (t *TaskController) List(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -46,7 +52,7 @@ func (t *TaskController) ListTasks(c *gin.Context) {
 	}))
 }
 
-func (t *TaskController) CreateTask(c *gin.Context) {
+func (t *TaskController) Create(c *gin.Context) {
 	req := &model.Task{}
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON错误: "+err.Error(), err))
@@ -68,7 +74,7 @@ func (t *TaskController) CreateTask(c *gin.Context) {
 	}))
 }
 
-func (t *TaskController) UpdateTask(c *gin.Context) {
+func (t *TaskController) Update(c *gin.Context) {
 	taskId := c.Param("id")
 	if taskId == "" {
 		c.JSON(400, utils.Error(1, "参数为空", errors.New("id 参数不能为空")))
@@ -95,7 +101,7 @@ func (t *TaskController) UpdateTask(c *gin.Context) {
 	}))
 }
 
-func (t *TaskController) DeleteTask(c *gin.Context) {
+func (t *TaskController) Delete(c *gin.Context) {
 	taskId := c.Param("id")
 	if taskId == "" {
 		c.JSON(400, utils.Error(1, "参数为空", errors.New("id 参数不能为空")))

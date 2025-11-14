@@ -4,10 +4,16 @@ import "devflow/model"
 
 type ImageRepository struct{}
 
+func NewImageRepository() *ImageRepository {
+	return &ImageRepository{}
+}
+
 func (i *ImageRepository) ListImages(pageNumber, pageSize int) ([]*model.Image, error) {
 	query := "SELECT id, name, created_by, updated_by, created_at, updated_at " +
 		"FROM image WHERE is_deleted = 0 LIMIT ? OFFSET ? "
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
+	defer rows.Close()
+	
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +72,7 @@ func (i *ImageRepository) DeleteImage(id int) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (i *ImageRepository) GetImageNameById(id int) (string, error) {
+func (i *ImageRepository) GetImageName(id int) (string, error) {
 	query := "SELECT name " +
 		"FROM image WHERE id = ?"
 	var imageName string

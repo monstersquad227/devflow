@@ -6,7 +6,13 @@ import (
 )
 
 type TaskService struct {
-	TaskRepository *repository.TaskRepository
+	TaskRepository repository.TaskRepositoryInterface
+}
+
+func NewTaskService(repo repository.TaskRepositoryInterface) *TaskService {
+	return &TaskService{
+		TaskRepository: repo,
+	}
 }
 
 func (t *TaskService) List(pageNumber, pageSize int) ([]*model.Task, error) {

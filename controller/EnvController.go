@@ -21,8 +21,8 @@ func NewEnvController(svc service.EnvServiceInterface) *EnvController {
 	}
 }
 
-// List 获取环境列表
-func (crtl *EnvController) List(c *gin.Context) {
+// List 获取环境
+func (e *EnvController) List(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -37,13 +37,13 @@ func (crtl *EnvController) List(c *gin.Context) {
 		return
 	}
 
-	result, err := crtl.EnvService.List(pageNumber, pageSize)
+	result, err := e.EnvService.List(pageNumber, pageSize)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败: "+err.Error(), err))
 		return
 	}
 
-	count, err := crtl.EnvService.Count()
+	count, err := e.EnvService.Count()
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败:"+err.Error(), err))
 		return
@@ -55,8 +55,8 @@ func (crtl *EnvController) List(c *gin.Context) {
 	}))
 }
 
-// Create 创建新环境
-func (crtl *EnvController) Create(c *gin.Context) {
+// Create 创建环境
+func (e *EnvController) Create(c *gin.Context) {
 	req := &model.EnvCreateRequest{}
 	if err := c.ShouldBind(req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON错误", nil))
@@ -66,7 +66,7 @@ func (crtl *EnvController) Create(c *gin.Context) {
 	req.CreatedBy = account.(string)
 	req.UpdatedBy = account.(string)
 
-	result, err := crtl.EnvService.Create(req)
+	result, err := e.EnvService.Create(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -74,8 +74,8 @@ func (crtl *EnvController) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(result))
 }
 
-// Update 更新环境信息
-func (crtl *EnvController) Update(c *gin.Context) {
+// Update 更新环境
+func (e *EnvController) Update(c *gin.Context) {
 	envId := c.Param("id")
 	req := &model.Env{}
 	if err := c.ShouldBind(req); err != nil {
@@ -93,7 +93,7 @@ func (crtl *EnvController) Update(c *gin.Context) {
 	req.Id = id
 	req.UpdatedBy = account.(string)
 
-	rowAffected, err := crtl.EnvService.Update(req)
+	rowAffected, err := e.EnvService.Update(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -104,7 +104,7 @@ func (crtl *EnvController) Update(c *gin.Context) {
 }
 
 // Delete 删除环境
-func (crtl *EnvController) Delete(c *gin.Context) {
+func (e *EnvController) Delete(c *gin.Context) {
 	envId := c.Param("id")
 	if envId == "" {
 		c.JSON(400, utils.Error(1, "参数错误: env", nil))
@@ -115,7 +115,7 @@ func (crtl *EnvController) Delete(c *gin.Context) {
 		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
 		return
 	}
-	rowAffected, err := crtl.EnvService.Delete(id)
+	rowAffected, err := e.EnvService.Delete(id)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
@@ -126,9 +126,9 @@ func (crtl *EnvController) Delete(c *gin.Context) {
 }
 
 // GetNamespaces 获取环境的命名空间列表
-func (crtl *EnvController) GetNamespaces(c *gin.Context) {
+func (e *EnvController) GetNamespaces(c *gin.Context) {
 	env := c.Param("id")
-	result, err := crtl.EnvService.GetNamespaces(env)
+	result, err := e.EnvService.GetNamespaces(env)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "查询失败: "+err.Error(), err))
 		return
