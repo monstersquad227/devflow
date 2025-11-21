@@ -40,7 +40,7 @@ func (e *EnvService) Create(env *model.EnvCreateRequest) (*model.EnvCreateRespon
 	return resp, nil
 }
 
-func (e *EnvService) Update(env *model.Env) (int64, error) {
+func (e *EnvService) Update(env *model.EnvUpdateRequest) (int64, error) {
 	return e.EnvRepository.UpdateEnv(env)
 }
 

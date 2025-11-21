@@ -45,8 +45,8 @@ func (e *EnvRepository) CountEnvs() (int, error) {
 
 func (e *EnvRepository) CreateEnv(env *model.EnvCreateRequest) (int64, error) {
 	query := "INSERT " +
-		"INTO env(name, created_by, updated_by) VALUES (?, ?, ?)"
-	result, err := MysqlClient.Exec(query, env.Name, env.CreatedBy, env.UpdatedBy)
+		"INTO env(name, remark, created_by, updated_by) VALUES (?, ?, ?, ?)"
+	result, err := MysqlClient.Exec(query, env.Name, env.Remark, env.CreatedBy, env.UpdatedBy)
 	if err != nil {
 		return 0, err
 	}
@@ -64,11 +64,11 @@ func (e *EnvRepository) DeleteEnv(id int) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (e *EnvRepository) UpdateEnv(env *model.Env) (int64, error) {
+func (e *EnvRepository) UpdateEnv(env *model.EnvUpdateRequest) (int64, error) {
 	query := "UPDATE env " +
-		"SET name = ?, updated_by = ? " +
+		"SET name = ?, remark = ?, updated_by = ? " +
 		"WHERE id = ?"
-	result, err := MysqlClient.Exec(query, env.Name, env.UpdatedBy, env.Id)
+	result, err := MysqlClient.Exec(query, env.Name, env.Remark, env.UpdatedBy, env.Id)
 	if err != nil {
 		return 0, err
 	}

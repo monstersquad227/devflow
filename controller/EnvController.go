@@ -76,21 +76,21 @@ func (e *EnvController) Create(c *gin.Context) {
 
 // Update 更新环境
 func (e *EnvController) Update(c *gin.Context) {
-	envId := c.Param("id")
-	req := &model.Env{}
+	//envId := c.Param("id")
+	req := &model.EnvUpdateRequest{}
 	if err := c.ShouldBind(req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON错误: "+err.Error(), err))
 		return
 	}
 
-	id, err := strconv.Atoi(envId)
-	if err != nil {
-		c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
-		return
-	}
+	//id, err := strconv.Atoi(envId)
+	//if err != nil {
+	//	c.JSON(400, utils.Error(1, "strconv 错误: "+err.Error(), err))
+	//	return
+	//}
 
 	account, _ := c.Get("account")
-	req.Id = id
+	//req.Id = id
 	req.UpdatedBy = account.(string)
 
 	rowAffected, err := e.EnvService.Update(req)

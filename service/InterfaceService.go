@@ -76,7 +76,7 @@ type EnvServiceInterface interface {
 	Create(env *model.EnvCreateRequest) (*model.EnvCreateResponse, error)
 
 	// Update 更新环境信息
-	Update(env *model.Env) (int64, error)
+	Update(env *model.EnvUpdateRequest) (int64, error)
 
 	// Delete 删除指定ID的环境
 	Delete(id int) (int64, error)

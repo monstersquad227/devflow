@@ -17,7 +17,7 @@ type EnvRepositoryInterface interface {
 	DeleteEnv(id int) (int64, error)
 
 	// UpdateEnv 更新环境
-	UpdateEnv(env *model.Env) (int64, error)
+	UpdateEnv(env *model.EnvUpdateRequest) (int64, error)
 }
 
 type ImageRepositoryInterface interface {
