@@ -8,13 +8,13 @@ import (
 )
 
 func FlowedgeRegister(api *gin.RouterGroup) {
-	flowedgeController := &controller.FlowEdgeController{
-		FlowedgeService: &service.FlowedgeService{
-			FlowedgeRepository: &repository.FlowedgeRepository{},
-		},
-	}
+	flowedgeController := controller.NewFlowEdgeController(
+		service.NewFlowedgeService(
+			repository.NewFlowedgeRepository(),
+		),
+	)
 
-	api.GET("/flowedges", flowedgeController.ListFlowedges)
-	api.GET("/flowedges/:flowedge", flowedgeController.GetFlowedgesByApplication)
-	api.PATCH("/flowedges/:flowedge", flowedgeController.UpdateFlowedgeApplicationByAgentID)
+	api.GET("/flowedges", flowedgeController.List)
+	api.GET("/flowedges/:flowedge", flowedgeController.ListByApplication)
+	api.PATCH("/flowedges/:flowedge", flowedgeController.PatchApplication)
 }

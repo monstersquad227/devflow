@@ -26,8 +26,10 @@ const (
 )
 
 var (
-	logger     *logrus.Logger
-	loggerOnce sync.Once // ✅ 确保只初始化一次
+	logger       *logrus.Logger
+	loggerMutex  sync.RWMutex
+	lastLogDate  string
+	rotateWriter io.WriteCloser
 )
 
 // CustomJSONFormatter 自定义 JSON 格式化器
@@ -53,49 +55,65 @@ func (f *CustomJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return append(logBytes, '\n'), nil
 }
 
-// initLogger 初始化 logger（只执行一次）
+// initLogger 初始化 logger（支持日期变更时重新初始化）
 func initLogger() {
-	loggerOnce.Do(func() {
-		// 确保日志目录存在
-		logDir := "logs"
-		if err := os.MkdirAll(logDir, 0755); err != nil {
-			panic(fmt.Sprintf("创建日志目录失败: %v", err))
-		}
+	loggerMutex.Lock()
+	defer loggerMutex.Unlock()
 
-		// ✅ 使用通配符模式，让 rotatelogs 自动管理文件名
-		logFileName := filepath.Join(logDir, fmt.Sprintf("%s_%%Y%%m%%d.log",
-			config.GlobalConfig.Application.Name,
-		))
+	currentDate := time.Now().Format("20060102")
 
-		// ✅ 正确的轮转配置
-		rotateWriter, err := rotatelogs.New(
-			logFileName,
-			rotatelogs.WithClock(rotatelogs.Local),    // 使用本地时间
-			rotatelogs.WithRotationTime(24*time.Hour), // ✅ 每天轮转
-			rotatelogs.WithMaxAge(7*24*time.Hour),     // 保留 7 天
-			//rotatelogs.WithLinkName(filepath.Join(logDir, "latest.log")), // 软链接到最新日志
-		)
-		if err != nil {
-			panic(fmt.Sprintf("无法初始化日志轮转: %v", err))
-		}
+	// 如果 logger 已存在且日期未变，直接返回
+	if logger != nil && lastLogDate == currentDate {
+		return
+	}
 
-		// 创建 logger
-		logger = logrus.New()
-		logger.SetFormatter(&CustomJSONFormatter{})
+	// 如果日期变了，关闭旧的 writer
+	if rotateWriter != nil {
+		rotateWriter.Close()
+	}
 
-		// ✅ 同时输出到控制台和文件
-		multiWriter := io.MultiWriter(os.Stdout, rotateWriter)
-		logger.SetOutput(multiWriter)
-		logger.SetLevel(logrus.InfoLevel)
-	})
+	// 确保日志目录存在
+	logDir := "logs"
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		panic(fmt.Sprintf("创建日志目录失败: %v", err))
+	}
+
+	// 使用通配符模式，让 rotatelogs 自动管理文件名
+	logFileName := filepath.Join(logDir, fmt.Sprintf("%s_%%Y%%m%%d.log",
+		config.GlobalConfig.Application.Name,
+	))
+
+	// 正确的轮转配置
+	var err error
+	rotateWriter, err = rotatelogs.New(
+		logFileName,
+		rotatelogs.WithClock(rotatelogs.Local),    // 使用本地时间
+		rotatelogs.WithRotationTime(24*time.Hour), // 每天轮转
+		rotatelogs.WithMaxAge(7*24*time.Hour),     // 保留 7 天
+	)
+	if err != nil {
+		panic(fmt.Sprintf("无法初始化日志轮转: %v", err))
+	}
+
+	// 创建 logger
+	logger = logrus.New()
+	logger.SetFormatter(&CustomJSONFormatter{})
+
+	// 同时输出到控制台和文件
+	multiWriter := io.MultiWriter(os.Stdout, rotateWriter)
+	logger.SetOutput(multiWriter)
+	logger.SetLevel(logrus.InfoLevel)
+
+	// 记录当前日期
+	lastLogDate = currentDate
 }
 
 // Logger 记录 HTTP 请求日志
 func Logger(logType LogType) gin.HandlerFunc {
-	// ✅ 在中间件初始化时调用一次
-	initLogger()
-
 	return func(c *gin.Context) {
+		// 每次请求都检查是否需要重新初始化
+		initLogger()
+
 		start := time.Now()
 
 		// 读取请求体
@@ -103,7 +121,7 @@ func Logger(logType LogType) gin.HandlerFunc {
 		if c.Request.Body != nil && c.Request.ContentLength > 0 {
 			bodyBytes, err := io.ReadAll(c.Request.Body)
 			if err == nil {
-				// ✅ 检查 unmarshal 错误
+				// 检查 unmarshal 错误
 				if err := json.Unmarshal(bodyBytes, &requestBody); err != nil {
 					requestBody = string(bodyBytes) // 如果不是 JSON，保存原始字符串
 				}
@@ -118,23 +136,28 @@ func Logger(logType LogType) gin.HandlerFunc {
 		// 计算延迟时间（ms）
 		latencyTime := time.Since(start).Milliseconds()
 
-		// ✅ 只在 HttpIn 类型时记录
+		// 只在 HttpIn 类型时记录
 		if logType == HttpIn {
-			httpInEntry := logrus.Fields{
-				"logType":              string(HttpIn),
-				"context":              "devflow",
-				"requestMethod":        c.Request.Method,
-				"requestUri":           c.Request.RequestURI,
-				"remoteAddr":           c.ClientIP(),
-				"requestContentLength": c.Request.ContentLength,
-				"userAgent":            c.Request.UserAgent(),
-				"requestHeaders":       c.Request.Header,
-				"requestBody":          requestBody,
-				"requestParameters":    c.Request.URL.Query(),
-				"responseStatus":       c.Writer.Status(),
-				"responseTime":         latencyTime,
+			loggerMutex.RLock()
+			defer loggerMutex.RUnlock()
+
+			if logger != nil {
+				httpInEntry := logrus.Fields{
+					"logType":              string(HttpIn),
+					"context":              "devflow",
+					"requestMethod":        c.Request.Method,
+					"requestUri":           c.Request.RequestURI,
+					"remoteAddr":           c.ClientIP(),
+					"requestContentLength": c.Request.ContentLength,
+					"userAgent":            c.Request.UserAgent(),
+					"requestHeaders":       c.Request.Header,
+					"requestBody":          requestBody,
+					"requestParameters":    c.Request.URL.Query(),
+					"responseStatus":       c.Writer.Status(),
+					"responseTime":         latencyTime,
+				}
+				logger.WithFields(httpInEntry).Info("HTTP Request")
 			}
-			logger.WithFields(httpInEntry).Info("HTTP Request")
 		}
 	}
 }
@@ -150,6 +173,13 @@ func LogHttpOut(
 	latency time.Duration,
 	err error) {
 	initLogger()
+
+	loggerMutex.RLock()
+	defer loggerMutex.RUnlock()
+
+	if logger == nil {
+		return
+	}
 
 	httpOutEntry := logrus.Fields{
 		"logType":        string(HttpOut),
@@ -173,10 +203,21 @@ func LogHttpOut(
 
 // RecoveryWithLogger 捕获 `panic` 并写入日志
 func RecoveryWithLogger() gin.HandlerFunc {
-	// ✅ 确保 logger 已初始化
-	initLogger()
-
 	return gin.CustomRecovery(func(c *gin.Context, err any) {
+		// 确保 logger 已初始化
+		initLogger()
+
+		loggerMutex.RLock()
+		defer loggerMutex.RUnlock()
+
+		if logger == nil {
+			c.JSON(500, gin.H{
+				"code":    500,
+				"message": "Internal Server Error",
+			})
+			return
+		}
+
 		stackTrace := string(debug.Stack())
 
 		panicLog := logrus.Fields{
@@ -190,7 +231,7 @@ func RecoveryWithLogger() gin.HandlerFunc {
 
 		logger.WithFields(panicLog).Error("Panic Recovered")
 
-		// ✅ 返回 JSON 错误响应
+		// 返回 JSON 错误响应
 		c.JSON(500, gin.H{
 			"code":    500,
 			"message": "Internal Server Error",

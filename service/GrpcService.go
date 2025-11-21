@@ -2,6 +2,7 @@ package service
 
 import (
 	"devflow/model"
+	"devflow/repository"
 	pb "github.com/monstersquad227/flowedge-proto"
 	"io"
 	"log"
@@ -19,7 +20,7 @@ var GlobalFlowEdgeServer = &FlowEdgeServer{}
 
 func (s *FlowEdgeServer) Communicate(stream pb.FlowEdge_CommunicateServer) error {
 	var agentID string
-	client := NewFlowedgeService()
+	client := NewFlowedgeService(repository.NewFlowedgeRepository())
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {

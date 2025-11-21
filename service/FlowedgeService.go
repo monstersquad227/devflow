@@ -6,11 +6,13 @@ import (
 )
 
 type FlowedgeService struct {
-	FlowedgeRepository *repository.FlowedgeRepository
+	FlowedgeRepository repository.FlowedgeRepositoryInterface
 }
 
-func NewFlowedgeService() *FlowedgeService {
-	return &FlowedgeService{}
+func NewFlowedgeService(repo repository.FlowedgeRepositoryInterface) *FlowedgeService {
+	return &FlowedgeService{
+		FlowedgeRepository: repo,
+	}
 }
 
 func (fs *FlowedgeService) List(pageNumber, pageSize int) ([]*model.Flowedge, error) {
@@ -32,6 +34,10 @@ func (fs *FlowedgeService) Update(flowedge *model.Flowedge) (int64, error) {
 	return fs.FlowedgeRepository.UpdateFlowedgeLastHeartBeat(flowedge)
 }
 
-func (fs *FlowedgeService) UpdateApplication(flowedge *model.Flowedge) (int64, error) {
-	return fs.FlowedgeRepository.UpdateFlowedgeApplication(flowedge)
+func (fs *FlowedgeService) PatchApplication(flowedge *model.FlowedgePatchRequest) (*model.FlowedgePatchResponse, error) {
+	rowsAffected, err := fs.FlowedgeRepository.UpdateFlowedgeApplication(flowedge)
+	if err != nil {
+		return nil, err
+	}
+	return &model.FlowedgePatchResponse{RowsAffected: rowsAffected}, nil
 }

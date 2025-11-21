@@ -98,5 +98,5 @@ type FlowedgeServiceInterface interface {
 	Count() (int, error)
 	FetchFlowedgesByApplication(application string) (interface{}, error)
 	Create(flowedge *model.Flowedge) (int64, error)
-	UpdateApplication(flowedge *model.Flowedge) (int64, error)
+	PatchApplication(flowedge *model.FlowedgePatchRequest) (*model.FlowedgePatchResponse, error)
 }

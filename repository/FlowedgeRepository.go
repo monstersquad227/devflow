@@ -6,6 +6,10 @@ import (
 
 type FlowedgeRepository struct{}
 
+func NewFlowedgeRepository() *FlowedgeRepository {
+	return &FlowedgeRepository{}
+}
+
 func (f *FlowedgeRepository) ListFlowedges(pageNumber, pageSize int) ([]*model.Flowedge, error) {
 	query := "SELECT agent_id, hostname, status, version, application, last_heartbeat, created_at, updated_at " +
 		"FROM flowedge LIMIT ? OFFSET ?"
@@ -86,7 +90,7 @@ func (f *FlowedgeRepository) UpdateFlowedgeLastHeartBeat(flow *model.Flowedge) (
 	return result.RowsAffected()
 }
 
-func (f *FlowedgeRepository) UpdateFlowedgeApplication(flow *model.Flowedge) (int64, error) {
+func (f *FlowedgeRepository) UpdateFlowedgeApplication(flow *model.FlowedgePatchRequest) (int64, error) {
 	query := "UPDATE " +
 		"flowedge SET application = ? " +
 		"WHERE agent_id = ?"

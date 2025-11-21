@@ -48,3 +48,12 @@ type TaskRepositoryInterface interface {
 	UpdateTask(task *model.Task) (int64, error)
 	GetTaskNameANDImageIDById(id int) (string, int, error)
 }
+
+type FlowedgeRepositoryInterface interface {
+	ListFlowedges(pageNumber, pageSize int) ([]*model.Flowedge, error)
+	CountFlowedges() (int, error)
+	GetFlowedgeByApplication(application string) (interface{}, error)
+	CreateFlowedge(flowedge *model.Flowedge) (int64, error)
+	UpdateFlowedgeLastHeartBeat(flow *model.Flowedge) (int64, error)
+	UpdateFlowedgeApplication(flow *model.FlowedgePatchRequest) (int64, error)
+}

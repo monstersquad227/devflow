@@ -13,7 +13,13 @@ type FlowEdgeController struct {
 	FlowedgeService service.FlowedgeServiceInterface
 }
 
-func (crtl *FlowEdgeController) ListFlowedges(c *gin.Context) {
+func NewFlowEdgeController(service service.FlowedgeServiceInterface) *FlowEdgeController {
+	return &FlowEdgeController{
+		FlowedgeService: service,
+	}
+}
+
+func (crtl *FlowEdgeController) List(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -46,7 +52,7 @@ func (crtl *FlowEdgeController) ListFlowedges(c *gin.Context) {
 	}))
 }
 
-func (crtl *FlowEdgeController) GetFlowedgesByApplication(c *gin.Context) {
+func (crtl *FlowEdgeController) ListByApplication(c *gin.Context) {
 	application := c.Param("flowedge")
 	if application == "" {
 		c.JSON(400, utils.Error(1, "application不能为空", nil))
@@ -60,20 +66,20 @@ func (crtl *FlowEdgeController) GetFlowedgesByApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(flowedges))
 }
 
-func (crtl *FlowEdgeController) UpdateFlowedgeApplicationByAgentID(c *gin.Context) {
+func (crtl *FlowEdgeController) PatchApplication(c *gin.Context) {
 	agentID := c.Param("flowedge")
 	if agentID == "" {
 		c.JSON(400, utils.Error(1, "agentID不能为空", nil))
 		return
 	}
-	req := &model.Flowedge{}
+	req := &model.FlowedgePatchRequest{}
 	err := c.ShouldBindJSON(req)
 	if err != nil {
 		c.JSON(400, utils.Error(1, err.Error(), err))
 		return
 	}
 	req.AgentID = agentID
-	result, err := crtl.FlowedgeService.UpdateApplication(req)
+	result, err := crtl.FlowedgeService.PatchApplication(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, err.Error(), err))
 		return

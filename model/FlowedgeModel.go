@@ -10,3 +10,12 @@ type Flowedge struct {
 	CreatedAt     string  `json:"created_at,omitempty"`
 	UpdatedAt     string  `json:"updated_at,omitempty"`
 }
+
+type FlowedgePatchRequest struct {
+	AgentID     string `json:"agent_id"`
+	Application string `json:"application" binding:"required"`
+}
+
+type FlowedgePatchResponse struct {
+	RowsAffected int64 `json:"rows_affected"`
+}
