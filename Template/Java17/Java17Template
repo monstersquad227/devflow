@@ -49,7 +49,7 @@ cat <<EOF > Dockerfile
 FROM ${image_source}
 WORKDIR /opt
 ADD ./${gitlab_name}-server/target/*.jar ./
-ENV JavaOptions="-Dspring.profiles.active=${environment_unique} -Dspring.cloud.nacos.discovery.group=${environment_unique}"
+ENV JavaOptions="-Dspring.profiles.active=${environment_unique} -Dspring.cloud.nacos.discovery.group=${environment_unique} -Duser.timezone=Asia/Shanghai"
 ENV PackageName=${gitlab_name}-server.jar
 EOF
                 """

@@ -57,3 +57,18 @@ type FlowedgeRepositoryInterface interface {
 	UpdateFlowedgeLastHeartBeat(flow *model.Flowedge) (int64, error)
 	UpdateFlowedgeApplication(flow *model.FlowedgePatchRequest) (int64, error)
 }
+
+type VmRepositoryInterface interface {
+	ListVms(pageNumber, pageSize int) ([]*model.Vm, error)
+	CountVms() (int, error)
+	CreateVm(vm *model.VmCreateRequest) (*model.VmCreateResponse, error)
+	UpdateVm(vm *model.VmUpdateRequest) (*model.VmUpdateResponse, error)
+	DeleteVm(id int) (int64, error)
+	GetVmPasswordById(id int) (string, error)
+	GetVmsByApplication(application string) (interface{}, error)
+	GetCloudProviderById(id int) (string, error)
+	GetInstanceIDById(id int) (string, error)
+	GetRegionById(id int) (string, error)
+	GetUserByVm(id int) ([]*model.User, error)
+	UpdateUserByVm(vmID int, userIDs []int) (int64, error)
+}

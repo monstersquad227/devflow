@@ -36,12 +36,12 @@ type ProjectServiceInterface interface {
 type VmServiceInterface interface {
 	List(pageNumber, pageSize int) ([]*model.Vm, error)
 	Count() (int, error)
-	Create(vm *model.Vm) (int64, error)
-	Update(vm *model.Vm) (int64, error)
+	Create(vm *model.VmCreateRequest) (*model.VmCreateResponse, error)
+	Update(vm *model.VmUpdateRequest) (*model.VmUpdateResponse, error)
 	Delete(id int) (int64, error)
 	FetchVmPasswordById(id int) (string, error)
 	FetchVmsByApplication(application string) (interface{}, error)
-	CreateAliyunVm(vm *model.Vm) (int64, error)
+	CreateAliyunVm(vm *model.VmCreateRequest) (*model.VmCreateResponse, error)
 	FetchUserByVm(id int) ([]*model.User, error)
 	SetAssignUsersToVm(id int, users []int) (int64, error)
 }

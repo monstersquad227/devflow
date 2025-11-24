@@ -3,10 +3,15 @@ package repository
 import (
 	"database/sql"
 	"devflow/model"
+	"errors"
 	"fmt"
 )
 
 type VmRepository struct{}
+
+func NewVmRepository() *VmRepository {
+	return &VmRepository{}
+}
 
 func (repo *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error) {
 	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, created_at, updated_at " +
@@ -58,30 +63,31 @@ func (repo *VmRepository) CountVms() (int, error) {
 	return count, nil
 }
 
-func (repo *VmRepository) CreateVm(vm *model.Vm) (int64, error) {
+func (repo *VmRepository) CreateVm(vm *model.VmCreateRequest) (*model.VmCreateResponse, error) {
 	query := "INSERT " +
 		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, password) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Application, vm.Region, vm.CloudProvider, vm.Os, vm.Password)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
+	lastInsertId, err := result.LastInsertId()
+	return &model.VmCreateResponse{LastInsertId: lastInsertId}, err
 }
 
-func (repo *VmRepository) UpdateVm(vm *model.Vm) (int64, error) {
+func (repo *VmRepository) UpdateVm(vm *model.VmUpdateRequest) (*model.VmUpdateResponse, error) {
 	query := "UPDATE vm " +
 		"SET instance_name = ?, private_ip = ?, public_ip = ?, spec = ?, application = ?, region = ?, cloud_provider = ?, os = ? " +
 		"WHERE id = ?"
 	result, err := MysqlClient.Exec(query, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Application, vm.Region, vm.CloudProvider, vm.Os, vm.Id)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
+	if rowsAffected == 0 {
+		return nil, errors.New("机器不存在")
+	}
+	return &model.VmUpdateResponse{RowsAffected: rowsAffected}, err
 }
 
 func (repo *VmRepository) DeleteVm(id int) (int64, error) {

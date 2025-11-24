@@ -6,12 +6,19 @@ import (
 	"devflow/repository"
 	"devflow/utils"
 	"encoding/base64"
+	"errors"
 	ecs20140526 "github.com/alibabacloud-go/ecs-20140526/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 )
 
 type VmService struct {
-	VmRepo *repository.VmRepository
+	VmRepo repository.VmRepositoryInterface
+}
+
+func NewVmService(repo repository.VmRepositoryInterface) *VmService {
+	return &VmService{
+		VmRepo: repo,
+	}
 }
 
 func (svc *VmService) List(pageNumber, pageSize int) ([]*model.Vm, error) {
@@ -22,16 +29,19 @@ func (svc *VmService) Count() (int, error) {
 	return svc.VmRepo.CountVms()
 }
 
-func (svc *VmService) Create(vm *model.Vm) (int64, error) {
+func (svc *VmService) Create(vm *model.VmCreateRequest) (*model.VmCreateResponse, error) {
 	encryptPassword, err := utils.EncryptAESGCM(vm.Password)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	vm.Password = encryptPassword
 	return svc.VmRepo.CreateVm(vm)
 }
 
-func (svc *VmService) Update(vm *model.Vm) (int64, error) {
+func (svc *VmService) Update(vm *model.VmUpdateRequest) (*model.VmUpdateResponse, error) {
+	if vm.Id <= 0 {
+		return nil, errors.New("无效的机器id")
+	}
 	return svc.VmRepo.UpdateVm(vm)
 }
 
@@ -88,10 +98,10 @@ func (svc *VmService) FetchVmsByApplication(application string) (interface{}, er
 	return svc.VmRepo.GetVmsByApplication(application)
 }
 
-func (svc *VmService) CreateAliyunVm(vm *model.Vm) (int64, error) {
+func (svc *VmService) CreateAliyunVm(vm *model.VmCreateRequest) (*model.VmCreateResponse, error) {
 	client, err := NewAliyunClient()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	request := &ecs20140526.RunInstancesRequest{
@@ -127,12 +137,12 @@ func (svc *VmService) CreateAliyunVm(vm *model.Vm) (int64, error) {
 	}
 	resp, err := client.RunInstances(request)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	instances := resp.Body.InstanceIdSets.InstanceIdSet[0]
 	encryptPassword, err := utils.EncryptAESGCM(vm.Password)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	vm.Password = encryptPassword
 	vm.InstanceId = *instances

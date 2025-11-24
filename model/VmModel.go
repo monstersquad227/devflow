@@ -16,3 +16,37 @@ type Vm struct {
 	CreatedAt     string `json:"created_at,omitempty"`
 	UpdatedAt     string `json:"updated_at,omitempty"`
 }
+
+type VmCreateRequest struct {
+	InstanceId    string `json:"instance_id"`
+	InstanceName  string `json:"instance_name" binding:"required"`
+	Password      string `json:"password" binding:"required"`
+	PrivateIp     string `json:"private_ip" binding:"required"`
+	PublicIp      string `json:"public_ip"`
+	Spec          string `json:"spec" binding:"required"`
+	Application   string `json:"application"`
+	Region        string `json:"region" binding:"required"`
+	CloudProvider string `json:"cloud_provider" binding:"required"`
+	Os            string `json:"os" binding:"required"`
+}
+
+type VmCreateResponse struct {
+	LastInsertId int64 `json:"last_insert_id"`
+}
+
+type VmUpdateRequest struct {
+	Id            int    `json:"_"`
+	InstanceId    string `json:"instance_id" binding:"required"`
+	InstanceName  string `json:"instance_name" binding:"required"`
+	PrivateIp     string `json:"private_ip" binding:"required"`
+	PublicIp      string `json:"public_ip"`
+	Spec          string `json:"spec" binding:"required"`
+	Application   string `json:"application"`
+	Region        string `json:"region" binding:"required"`
+	CloudProvider string `json:"cloud_provider" binding:"required"`
+	Os            string `json:"os" binding:"required"`
+}
+
+type VmUpdateResponse struct {
+	RowsAffected int64 `json:"rows_affected"`
+}

@@ -15,7 +15,13 @@ type VmController struct {
 	VmService service.VmServiceInterface
 }
 
-func (ctrl *VmController) ListVms(c *gin.Context) {
+func NewVmController(svc service.VmServiceInterface) *VmController {
+	return &VmController{
+		VmService: svc,
+	}
+}
+
+func (ctrl *VmController) List(c *gin.Context) {
 	number := c.Query("pageNumber")
 	size := c.Query("pageSize")
 
@@ -46,8 +52,8 @@ func (ctrl *VmController) ListVms(c *gin.Context) {
 	}))
 }
 
-func (ctrl *VmController) CreateVm(c *gin.Context) {
-	req := &model.Vm{}
+func (ctrl *VmController) Create(c *gin.Context) {
+	req := &model.VmCreateRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(400, utils.Error(1, "参数错误: "+err.Error(), err))
 		return
@@ -78,35 +84,35 @@ func (ctrl *VmController) CreateVm(c *gin.Context) {
 	case "aws":
 		c.JSON(http.StatusOK, "ING...")
 	case "local":
-		lastId, err := ctrl.VmService.Create(req)
+		result, err := ctrl.VmService.Create(req)
 		if err != nil {
 			c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 			return
 		}
-		c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
-			"LastInsertId": lastId,
-		}))
+		c.JSON(http.StatusOK, utils.Success(result))
 		return
 	}
 }
 
-func (ctrl *VmController) UpdateVm(c *gin.Context) {
-	req := &model.Vm{}
+func (ctrl *VmController) Update(c *gin.Context) {
+	vmId := c.Param("vm")
+
+	req := &model.VmUpdateRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(400, utils.Error(1, "JSON错误: "+err.Error(), err))
 		return
 	}
+	req.Id, _ = strconv.Atoi(vmId)
+
 	rowAffected, err := ctrl.VmService.Update(req)
 	if err != nil {
 		c.JSON(500, utils.Error(1, "内部错误: "+err.Error(), err))
 		return
 	}
-	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
-		"rowAffected": rowAffected,
-	}))
+	c.JSON(http.StatusOK, utils.Success(rowAffected))
 }
 
-func (ctrl *VmController) DeleteVm(c *gin.Context) {
+func (ctrl *VmController) Delete(c *gin.Context) {
 	vmId := c.Param("vm")
 	if vmId == "" {
 		c.JSON(400, utils.Error(1, "参数错误", errors.New(":vm 为空")))
@@ -127,7 +133,7 @@ func (ctrl *VmController) DeleteVm(c *gin.Context) {
 	}))
 }
 
-func (ctrl *VmController) GetVmPasswordById(c *gin.Context) {
+func (ctrl *VmController) GetPassword(c *gin.Context) {
 	vmId := c.Param("vm")
 	if vmId == "" {
 		c.JSON(400, utils.Error(1, "参数错误", errors.New(":vm 为空")))
@@ -146,7 +152,7 @@ func (ctrl *VmController) GetVmPasswordById(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(password))
 }
 
-func (ctrl *VmController) GetVmsByApplication(c *gin.Context) {
+func (ctrl *VmController) Get(c *gin.Context) {
 	application := c.Param("vm")
 	if application == "" {
 		c.JSON(400, utils.Error(1, "application不能为空", nil))
@@ -160,7 +166,7 @@ func (ctrl *VmController) GetVmsByApplication(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(vms))
 }
 
-func (ctrl *VmController) GetUsersByVm(c *gin.Context) {
+func (ctrl *VmController) ListUsers(c *gin.Context) {
 	vm := c.Param("vm")
 	vmId, err := strconv.Atoi(vm)
 	if err != nil {
@@ -175,7 +181,7 @@ func (ctrl *VmController) GetUsersByVm(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(result))
 }
 
-func (ctrl *VmController) UpdateUsersByVm(c *gin.Context) {
+func (ctrl *VmController) UpdateUsers(c *gin.Context) {
 	vm := c.Param("vm")
 	vmId, err := strconv.Atoi(vm)
 	if err != nil {
