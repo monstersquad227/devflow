@@ -79,7 +79,7 @@ func initLogger() {
 	}
 
 	// 使用通配符模式，让 rotatelogs 自动管理文件名
-	logFileName := filepath.Join(logDir, fmt.Sprintf("%s_%%Y%%m%%d.log",
+	logFileName := filepath.Join(logDir, fmt.Sprintf("%s_%%Y-%%m-%%d.log",
 		config.GlobalConfig.Application.Name,
 	))
 
