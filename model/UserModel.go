@@ -13,3 +13,13 @@ type User struct {
 	CreatedAt   string   `json:"created_at,omitempty"`
 	UpdatedAt   string   `json:"updated_at,omitempty"`
 }
+
+type LoginRequest struct {
+	Account  string `json:"account"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
+}

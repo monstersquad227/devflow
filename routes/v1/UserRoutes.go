@@ -8,14 +8,13 @@ import (
 )
 
 func UserRegister(api *gin.RouterGroup) {
+	userController := controller.NewUserController(
+		service.NewUserService(
+			repository.NewUserRepository(),
+		),
+	)
 
-	UserController := &controller.UserController{
-		UserService: &service.UserService{
-			UserRepo: &repository.UserRepository{},
-		},
-	}
-
-	api.POST("/user/login", UserController.Login) // √
-	api.GET("/users", UserController.Users)
-	api.GET("/getPermission", UserController.Permission)
+	api.POST("/user/login", userController.Login)
+	api.GET("/users", userController.Users)
+	api.GET("/getPermission", userController.Permission)
 }

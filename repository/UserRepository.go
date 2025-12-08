@@ -8,11 +8,15 @@ import (
 
 type UserRepository struct{}
 
+func NewUserRepository() *UserRepository {
+	return &UserRepository{}
+}
+
 /*
 UpdateTokenByAccount 通过 account 更新 token 字段
 */
 
-func (repo *UserRepository) UpdateTokenByAccount(account, token string) (int64, error) {
+func (r *UserRepository) UpdateTokenByAccount(account, token string) (int64, error) {
 	query := "UPDATE user " +
 		"SET token = ? " +
 		"WHERE account = ?"
@@ -25,7 +29,7 @@ func (repo *UserRepository) UpdateTokenByAccount(account, token string) (int64, 
 	return result.RowsAffected()
 }
 
-func (repo *UserRepository) ListUsers() ([]*model.User, error) {
+func (r *UserRepository) ListUsers() ([]*model.User, error) {
 	query := "SELECT id, name " +
 		"FROM user"
 	rows, err := MysqlClient.Query(query)
@@ -74,7 +78,7 @@ func (r *UserRepository) GetUsers(account string) (interface{}, error) {
 GetPermissions 通过 account 获取 permissions 字段
 */
 
-func (repo *UserRepository) GetPermissions(account string) (interface{}, error) {
+func (r *UserRepository) GetPermissions(account string) (interface{}, error) {
 	query := "SELECT permissions " +
 		"FROM user WHERE account = ?"
 	var str string
@@ -92,7 +96,7 @@ func (repo *UserRepository) GetPermissions(account string) (interface{}, error) 
 GetRoles 通过 account 获取 roles 字段
 */
 
-func (repo *UserRepository) GetRoles(account string) (interface{}, error) {
+func (r *UserRepository) GetRoles(account string) (interface{}, error) {
 	query := "SELECT roles " +
 		"FROM user WHERE account = ?"
 	var str string

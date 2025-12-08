@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"devflow/model"
 	"devflow/service"
 	"devflow/utils"
 	"encoding/base64"
@@ -12,24 +13,27 @@ type UserController struct {
 	UserService service.UserServiceInterface
 }
 
-func (ctrl *UserController) Login(c *gin.Context) {
-	var userReq struct {
-		Account  string `json:"account"`
-		Password string `json:"password"`
+func NewUserController(svc service.UserServiceInterface) *UserController {
+	return &UserController{
+		UserService: svc,
 	}
+}
 
-	if err := c.ShouldBindJSON(&userReq); err != nil {
+func (ctrl *UserController) Login(c *gin.Context) {
+	req := model.LoginRequest{}
+
+	if err := c.ShouldBindJSON(req); err != nil {
 		c.JSON(400, utils.Error(1, "参数错误: "+err.Error(), err))
 		return
 	}
 
-	account, err := base64.StdEncoding.DecodeString(userReq.Account)
+	account, err := base64.StdEncoding.DecodeString(req.Account)
 	if err != nil {
 		c.JSON(400, utils.Error(1, "account 参数错误", err))
 		return
 	}
 
-	password, err := base64.StdEncoding.DecodeString(userReq.Password)
+	password, err := base64.StdEncoding.DecodeString(req.Password)
 	if err != nil {
 		c.JSON(400, utils.Error(1, "password 参数错误", err))
 		return

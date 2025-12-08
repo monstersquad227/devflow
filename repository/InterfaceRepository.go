@@ -2,6 +2,14 @@ package repository
 
 import "devflow/model"
 
+type UserRepositoryInterface interface {
+	UpdateTokenByAccount(account, token string) (int64, error)
+	ListUsers() ([]*model.User, error)
+	GetUsers(account string) (interface{}, error)
+	GetPermissions(account string) (interface{}, error)
+	GetRoles(account string) (interface{}, error)
+}
+
 // EnvRepositoryInterface 环境数据访问层接口
 type EnvRepositoryInterface interface {
 	// ListEnvs 分页查询环境列表

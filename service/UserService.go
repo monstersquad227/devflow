@@ -10,7 +10,13 @@ import (
 )
 
 type UserService struct {
-	UserRepo *repository.UserRepository
+	UserRepo repository.UserRepositoryInterface
+}
+
+func NewUserService(repo repository.UserRepositoryInterface) *UserService {
+	return &UserService{
+		UserRepo: repo,
+	}
 }
 
 func (repo *UserService) Login(account, password string) (interface{}, interface{}, error) {
