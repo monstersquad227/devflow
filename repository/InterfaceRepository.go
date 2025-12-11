@@ -5,9 +5,10 @@ import "devflow/model"
 type UserRepositoryInterface interface {
 	UpdateTokenByAccount(account, token string) (int64, error)
 	ListUsers() ([]*model.User, error)
-	GetUsers(account string) (interface{}, error)
-	GetPermissions(account string) (interface{}, error)
-	GetRoles(account string) (interface{}, error)
+	GetUsers(account string) (*model.User, error)
+	GetPermissions(id int64) ([]string, error)
+	GetRoles(id int64) ([]*model.Role, error)
+	GetMenus(id int64) ([]*model.Menu, error)
 }
 
 // EnvRepositoryInterface 环境数据访问层接口

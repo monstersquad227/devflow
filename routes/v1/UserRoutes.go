@@ -16,5 +16,5 @@ func UserRegister(api *gin.RouterGroup) {
 
 	api.POST("/user/login", userController.Login)
 	api.GET("/users", userController.Users)
-	api.GET("/getPermission", userController.Permission)
+	//api.GET("/getPermission", userController.Permission)
 }

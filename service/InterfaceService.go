@@ -7,9 +7,9 @@ import (
 )
 
 type UserServiceInterface interface {
-	Login(account, password string) (interface{}, interface{}, error)
+	Login(account, password string) (*model.LoginResponse, error)
 	List() ([]*model.User, error)
-	UserPermission(account string) (interface{}, error)
+	//UserPermission(account string) (interface{}, error)
 }
 
 type ProjectServiceInterface interface {

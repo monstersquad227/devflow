@@ -54,7 +54,7 @@ func (r *UserRepository) ListUsers() ([]*model.User, error) {
 	return data, nil
 }
 
-func (r *UserRepository) GetUsers(account string) (interface{}, error) {
+func (r *UserRepository) GetUsers(account string) (*model.User, error) {
 	var roles, permissions string
 	var obj model.User
 	query := "SELECT id, account, name, email, mobile, roles, permissions, created_at, updated_at " +
@@ -78,34 +78,115 @@ func (r *UserRepository) GetUsers(account string) (interface{}, error) {
 GetPermissions 通过 account 获取 permissions 字段
 */
 
-func (r *UserRepository) GetPermissions(account string) (interface{}, error) {
-	query := "SELECT permissions " +
-		"FROM user WHERE account = ?"
-	var str string
-	if err := MysqlClient.QueryRow(query, account).Scan(&str); err != nil {
+func (r *UserRepository) GetPermissions(id int64) ([]string, error) {
+	query := "SELECT  " +
+		"    p.permission_code " +
+		"FROM permission p " +
+		"INNER JOIN role_permission rp ON p.id = rp.permission_id " +
+		"INNER JOIN user_role ur ON rp.role_id = ur.role_id " +
+		"WHERE ur.user_id = ? " +
+		"    AND p.status = 1 " +
+		"    AND p.deleted = 0 " +
+		"ORDER BY p.id;"
+	var data []string
+	rows, err := MysqlClient.Query(query, id)
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
+
+	if err != nil {
 		return nil, err
 	}
-	var result []string
-	if err := json.Unmarshal([]byte(str), &result); err != nil {
-		return nil, err
+	for rows.Next() {
+		var obj string
+		err := rows.Scan(&obj)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, obj)
 	}
-	return result, nil
+	return data, nil
 }
 
 /*
 GetRoles 通过 account 获取 roles 字段
 */
 
-func (r *UserRepository) GetRoles(account string) (interface{}, error) {
-	query := "SELECT roles " +
-		"FROM user WHERE account = ?"
-	var str string
-	if err := MysqlClient.QueryRow(query, account).Scan(&str); err != nil {
+func (r *UserRepository) GetRoles(id int64) ([]*model.Role, error) {
+	query := "SELECT " +
+		"    r.id, " +
+		"    r.role_code AS roleCode, " +
+		"    r.role_name AS roleName " +
+		"FROM role r " +
+		"INNER JOIN user_role ur ON r.id = ur.role_id " +
+		"WHERE ur.user_id = ? " +
+		"    AND r.status = 1 " +
+		"    AND r.deleted = 0;"
+	data := make([]*model.Role, 0)
+	rows, err := MysqlClient.Query(query, id)
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
+
+	if err != nil {
 		return nil, err
 	}
-	var result []string
-	if err := json.Unmarshal([]byte(str), &result); err != nil {
+	for rows.Next() {
+		obj := &model.Role{}
+		err = rows.Scan(&obj.ID, &obj.RoleCode, &obj.RoleName)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, obj)
+	}
+	return data, nil
+}
+
+/*
+GetRoles 通过 account 获取 menus
+*/
+
+func (r *UserRepository) GetMenus(id int64) ([]*model.Menu, error) {
+	query := "SELECT " +
+		"    p.id, " +
+		"    p.permission_code AS permissionCode, " +
+		"    p.permission_name AS permissionName, " +
+		"    p.path " +
+		"FROM permission p " +
+		"INNER JOIN role_permission rp ON p.id = rp.permission_id " +
+		"INNER JOIN user_role ur ON rp.role_id = ur.role_id " +
+		"WHERE ur.user_id = ? " +
+		"    AND p.resource_type = 'menu' " +
+		"    AND p.status = 1 " +
+		"  AND p.deleted = 0 " +
+		"ORDER BY p.parent_id, p.id;"
+	data := make([]*model.Menu, 0)
+	rows, err := MysqlClient.Query(query, id)
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
+
+	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	for rows.Next() {
+		obj := &model.Menu{}
+		err = rows.Scan(&obj.ID, &obj.PermissionCode, &obj.PermissionName, &obj.Path)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, obj)
+	}
+	return data, nil
 }
