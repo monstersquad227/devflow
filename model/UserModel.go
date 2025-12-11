@@ -72,3 +72,14 @@ type LoginResponse struct {
 	Permissions []string `json:"permissions"`
 	Menus       []*Menu  `json:"menus"`
 }
+
+type PasswordRequest struct {
+	Account            string `json:"account" binding:"required"`
+	Password           string `json:"password" binding:"required"`
+	NewPassword        string `json:"new_password" binding:"required"`
+	ConfirmNewPassword string `json:"confirm_new_password" binding:"required"`
+}
+
+type PasswordResponse struct {
+	Message string `json:"message"`
+}

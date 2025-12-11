@@ -9,6 +9,7 @@ import (
 type UserServiceInterface interface {
 	Login(account, password string) (*model.LoginResponse, error)
 	List() ([]*model.User, error)
+	PasswordChange(req *model.PasswordRequest) (*model.PasswordResponse, error)
 	//UserPermission(account string) (interface{}, error)
 }
 

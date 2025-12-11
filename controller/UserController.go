@@ -115,6 +115,49 @@ func (ctrl *UserController) Users(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Success(result))
 }
 
+func (ctrl *UserController) Password(c *gin.Context) {
+	req := &model.PasswordRequest{}
+
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.JSON(400, utils.Error(1, "参数错误: "+err.Error(), err))
+		return
+	}
+
+	account, err := base64.StdEncoding.DecodeString(req.Account)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "account 参数错误", err))
+		return
+	}
+	password, err := base64.StdEncoding.DecodeString(req.Password)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "password 参数错误", err))
+		return
+	}
+	newPassword, err := base64.StdEncoding.DecodeString(req.NewPassword)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "new_password 参数错误", err))
+		return
+	}
+	confirmNewPassword, err := base64.StdEncoding.DecodeString(req.ConfirmNewPassword)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "confirm_new_password 参数错误", err))
+		return
+	}
+
+	req.Account = string(account)
+	req.Password = string(password)
+	req.NewPassword = string(newPassword)
+	req.ConfirmNewPassword = string(confirmNewPassword)
+
+	result, err := ctrl.UserService.PasswordChange(req)
+	if err != nil {
+		c.JSON(500, utils.Error(1, "修改密码失败: "+err.Error(), err))
+		return
+	}
+
+	c.JSON(200, utils.Success(result))
+}
+
 //func (ctrl *UserController) Permission(c *gin.Context) {
 //	account, _ := c.Get("account")
 //	result, err := ctrl.UserService.UserPermission(account.(string))

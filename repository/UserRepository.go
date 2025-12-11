@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"devflow/model"
-	"encoding/json"
 )
 
 type UserRepository struct{}
@@ -55,27 +54,27 @@ func (r *UserRepository) ListUsers() ([]*model.User, error) {
 }
 
 func (r *UserRepository) GetUsers(account string) (*model.User, error) {
-	var roles, permissions string
+	//var roles, permissions string
 	var obj model.User
-	query := "SELECT id, account, name, email, mobile, roles, permissions, created_at, updated_at " +
+	query := "SELECT id, account, name, email, mobile, created_at, updated_at " +
 		"FROM user WHERE account = ? AND deleted = 0 "
 
-	err := MysqlClient.QueryRow(query, account).Scan(&obj.ID, &obj.Account, &obj.Name, &obj.Email, &obj.Mobile, &roles, &permissions, &obj.CreatedAt, &obj.UpdatedAt)
+	err := MysqlClient.QueryRow(query, account).Scan(&obj.ID, &obj.Account, &obj.Name, &obj.Email, &obj.Mobile, &obj.CreatedAt, &obj.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = json.Unmarshal([]byte(roles), &obj.Roles); err != nil {
-		return nil, err
-	}
-	if err = json.Unmarshal([]byte(permissions), &obj.Permissions); err != nil {
-		return nil, err
-	}
+	//if err = json.Unmarshal([]byte(roles), &obj.Roles); err != nil {
+	//	return nil, err
+	//}
+	//if err = json.Unmarshal([]byte(permissions), &obj.Permissions); err != nil {
+	//	return nil, err
+	//}
 	return &obj, err
 }
 
 /*
-GetPermissions 通过 account 获取 permissions 字段
+GetPermissions 通过 id 获取 permissions 字段
 */
 
 func (r *UserRepository) GetPermissions(id int64) ([]string, error) {
@@ -112,7 +111,7 @@ func (r *UserRepository) GetPermissions(id int64) ([]string, error) {
 }
 
 /*
-GetRoles 通过 account 获取 roles 字段
+GetRoles 通过 id 获取 roles 字段
 */
 
 func (r *UserRepository) GetRoles(id int64) ([]*model.Role, error) {
@@ -150,7 +149,7 @@ func (r *UserRepository) GetRoles(id int64) ([]*model.Role, error) {
 }
 
 /*
-GetRoles 通过 account 获取 menus
+GetRoles 通过 id 获取 menus
 */
 
 func (r *UserRepository) GetMenus(id int64) ([]*model.Menu, error) {
