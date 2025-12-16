@@ -63,6 +63,9 @@ type Config struct {
 		VSwitchId        string `mapstructure:"vswitch_id"`
 		SecurityGroupId1 string `mapstructure:"security_group_id1"`
 		SecurityGroupId2 string `mapstructure:"security_group_id2"`
+		SlsEndpoint      string `mapstructure:"sls_endpoint"`
+		SlsProject       string `mapstructure:"sls_project"`
+		SlsLogstore      string `mapstructure:"sls_logstore"`
 	}
 	Huawei struct {
 		AccessKey string `mapstructure:"access_key"`

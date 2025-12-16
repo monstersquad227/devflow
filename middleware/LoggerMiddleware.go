@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"devflow/config"
+	"devflow/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -157,6 +158,7 @@ func Logger(logType LogType) gin.HandlerFunc {
 					"responseTime":         latencyTime,
 				}
 				logger.WithFields(httpInEntry).Info("HTTP Request")
+				utils.SendToSls(httpInEntry)
 			}
 		}
 	}
@@ -199,6 +201,8 @@ func LogHttpOut(
 	} else {
 		logger.WithFields(httpOutEntry).Info("HTTP Request")
 	}
+
+	utils.SendToSls(httpOutEntry)
 }
 
 // RecoveryWithLogger 捕获 `panic` 并写入日志
@@ -230,6 +234,8 @@ func RecoveryWithLogger() gin.HandlerFunc {
 		}
 
 		logger.WithFields(panicLog).Error("Panic Recovered")
+
+		utils.SendToSls(panicLog)
 
 		// 返回 JSON 错误响应
 		c.JSON(500, gin.H{
