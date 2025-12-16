@@ -8,7 +8,7 @@ import (
 type ProjectRepository struct{}
 
 func (r *ProjectRepository) ListProjects(pageNumber, pageSize int) ([]*model.Project, error) {
-	query := "SELECT id, gitlab_name, deployment_name, gitlab_id, gitlab_repo, task_id, " +
+	query := "SELECT id, gitlab_name, deployment_name, tag, gitlab_id, gitlab_repo, task_id, " +
 		"project_build_path, project_package_name, description " +
 		"FROM project WHERE is_deleted = 0 LIMIT ? OFFSET ? "
 
@@ -20,7 +20,7 @@ func (r *ProjectRepository) ListProjects(pageNumber, pageSize int) ([]*model.Pro
 	data := make([]*model.Project, 0)
 	for rows.Next() {
 		obj := &model.Project{}
-		err = rows.Scan(&obj.ID, &obj.GitlabName, &obj.DeploymentName, &obj.GitlabID, &obj.GitlabRepo,
+		err = rows.Scan(&obj.ID, &obj.GitlabName, &obj.DeploymentName, &obj.Tag, &obj.GitlabID, &obj.GitlabRepo,
 			&obj.TaskID, &obj.ProjectBuildPath, &obj.ProjectPackageName, &obj.Description)
 		if err != nil {
 			return nil, err

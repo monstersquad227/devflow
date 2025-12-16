@@ -4,6 +4,7 @@ type Project struct {
 	ID                 uint   `json:"id,omitempty"`
 	GitlabName         string `json:"gitlab_name,omitempty"`
 	DeploymentName     string `json:"deployment_name,omitempty"`
+	Tag                int    `json:"tag"`
 	GitlabID           int    `json:"gitlab_id,omitempty"`
 	GitlabRepo         string `json:"gitlab_repo,omitempty"`
 	TaskID             int    `json:"task_id,omitempty"`
