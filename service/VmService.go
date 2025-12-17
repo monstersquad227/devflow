@@ -9,6 +9,7 @@ import (
 	"errors"
 	ecs20140526 "github.com/alibabacloud-go/ecs-20140526/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
+	"time"
 )
 
 type VmService struct {
@@ -35,6 +36,8 @@ func (svc *VmService) Create(vm *model.VmCreateRequest) (*model.VmCreateResponse
 		return nil, err
 	}
 	vm.Password = encryptPassword
+	vm.ExpiredAt = "2099-12-12 23:59:59"
+	vm.InstanceId = utils.GenerateInstanceId()
 	return svc.VmRepo.CreateVm(vm)
 }
 
@@ -146,6 +149,7 @@ func (svc *VmService) CreateAliyunVm(vm *model.VmCreateRequest) (*model.VmCreate
 	}
 	vm.Password = encryptPassword
 	vm.InstanceId = *instances
+	vm.ExpiredAt = time.Now().AddDate(0, 1, 0).Format("20060102")
 	return svc.VmRepo.CreateVm(vm)
 }
 

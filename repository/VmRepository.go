@@ -14,7 +14,7 @@ func NewVmRepository() *VmRepository {
 }
 
 func (repo *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error) {
-	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, created_at, updated_at " +
+	query := "SELECT id, instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, created_at, updated_at, expired_at " +
 		"FROM vm WHERE is_deleted = 0 " +
 		"ORDER BY " +
 		"CASE cloud_provider " +
@@ -44,7 +44,7 @@ func (repo *VmRepository) ListVms(pageNumber, pageSize int) ([]*model.Vm, error)
 	for rows.Next() {
 		obj := &model.Vm{}
 		if err = rows.Scan(&obj.Id, &obj.InstanceId, &obj.InstanceName, &obj.PrivateIp, &obj.PublicIp, &obj.Spec,
-			&obj.Application, &obj.Region, &obj.CloudProvider, &obj.Os, &obj.CreatedAt, &obj.UpdatedAt); err != nil {
+			&obj.Application, &obj.Region, &obj.CloudProvider, &obj.Os, &obj.CreatedAt, &obj.UpdatedAt, &obj.ExpiredAt); err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
@@ -65,9 +65,9 @@ func (repo *VmRepository) CountVms() (int, error) {
 
 func (repo *VmRepository) CreateVm(vm *model.VmCreateRequest) (*model.VmCreateResponse, error) {
 	query := "INSERT " +
-		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, password) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Application, vm.Region, vm.CloudProvider, vm.Os, vm.Password)
+		"INTO vm(instance_id, instance_name, private_ip, public_ip, spec, application, region, cloud_provider, os, password, expired_at) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	result, err := MysqlClient.Exec(query, vm.InstanceId, vm.InstanceName, vm.PrivateIp, vm.PublicIp, vm.Spec, vm.Application, vm.Region, vm.CloudProvider, vm.Os, vm.Password, vm.ExpiredAt)
 	if err != nil {
 		return nil, err
 	}

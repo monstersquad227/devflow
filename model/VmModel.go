@@ -15,6 +15,7 @@ type Vm struct {
 	IsDeleted     int    `json:"is_deleted,omitempty"`
 	CreatedAt     string `json:"created_at,omitempty"`
 	UpdatedAt     string `json:"updated_at,omitempty"`
+	ExpiredAt     string `json:"expired_at,omitempty"`
 }
 
 type VmCreateRequest struct {
@@ -28,6 +29,7 @@ type VmCreateRequest struct {
 	Region        string `json:"region" binding:"required"`
 	CloudProvider string `json:"cloud_provider" binding:"required"`
 	Os            string `json:"os" binding:"required"`
+	ExpiredAt     string `json:"expired_at"`
 }
 
 type VmCreateResponse struct {

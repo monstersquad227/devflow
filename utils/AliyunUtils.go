@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/rand"
 	"devflow/config"
 	"encoding/base64"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/gogo/protobuf/proto"
 	"github.com/sirupsen/logrus"
+	"math/big"
 	"os"
 	"strings"
 	"time"
@@ -117,4 +119,19 @@ func SendToSls(fields logrus.Fields) {
 			fmt.Printf("发送SLS日志失败: %v\n", err)
 		}
 	}()
+}
+
+func GenerateInstanceId() string {
+	randomPartLength := 17
+	prefix := "l-local"
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	result := make([]byte, randomPartLength)
+	for i := 0; i < randomPartLength; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			fmt.Printf(err.Error())
+		}
+		result[i] = charset[num.Int64()]
+	}
+	return prefix + string(result)
 }
