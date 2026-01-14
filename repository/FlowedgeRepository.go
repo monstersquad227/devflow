@@ -11,7 +11,7 @@ func NewFlowedgeRepository() *FlowedgeRepository {
 }
 
 func (f *FlowedgeRepository) ListFlowedges(pageNumber, pageSize int) ([]*model.Flowedge, error) {
-	query := "SELECT agent_id, hostname, status, version, application, last_heartbeat, created_at, updated_at " +
+	query := "SELECT agent_id, hostname, metadata, status, version, application, last_heartbeat, created_at, updated_at " +
 		"FROM flowedge LIMIT ? OFFSET ?"
 	rows, err := MysqlClient.Query(query, pageSize, (pageNumber-1)*pageSize)
 	if err != nil {
@@ -21,7 +21,7 @@ func (f *FlowedgeRepository) ListFlowedges(pageNumber, pageSize int) ([]*model.F
 
 	for rows.Next() {
 		obj := &model.Flowedge{}
-		if err = rows.Scan(&obj.AgentID, &obj.Hostname, &obj.Status, &obj.Version, &obj.Application, &obj.LastHeartBeat, &obj.CreatedAt, &obj.UpdatedAt); err != nil {
+		if err = rows.Scan(&obj.AgentID, &obj.Hostname, &obj.Metadata, &obj.Status, &obj.Version, &obj.Application, &obj.LastHeartBeat, &obj.CreatedAt, &obj.UpdatedAt); err != nil {
 			return nil, err
 		}
 		data = append(data, obj)
