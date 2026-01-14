@@ -46,9 +46,10 @@ func (s *FlowEdgeServer) Communicate(stream pb.FlowEdge_CommunicateServer) error
 			agentID = msg.GetRegister().AgentId
 			s.streams.Store(agentID, stream)
 
-			f := &model.Flowedge{
+			f := &model.FlowedgeCreateRequest{
 				AgentID:  agentID,
 				Hostname: msg.GetRegister().Hostname,
+				Metadata: msg.GetRegister().Metadata,
 				Version:  msg.GetRegister().Version,
 				Status:   "online",
 			}

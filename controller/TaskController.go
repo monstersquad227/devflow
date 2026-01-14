@@ -123,3 +123,22 @@ func (t *TaskController) Delete(c *gin.Context) {
 		"rowAffected": rowAffected,
 	}))
 }
+
+func (t *TaskController) GetDetail(c *gin.Context) {
+	taskId := c.Param("id")
+	if taskId == "" {
+		c.JSON(400, utils.Error(1, "参数为空", errors.New("id 参数不能为空")))
+		return
+	}
+
+	id, err := strconv.Atoi(taskId)
+	config, err := t.TaskService.GetConfig(id)
+	if err != nil {
+		c.JSON(400, utils.Error(1, "strconv 参数错误: "+err.Error(), err))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Success(map[string]interface{}{
+		"config": config,
+	}))
+}

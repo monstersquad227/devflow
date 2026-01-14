@@ -69,10 +69,10 @@ func (f *FlowedgeRepository) GetFlowedgeByApplication(application string) (inter
 
 func (f *FlowedgeRepository) CreateFlowedge(flowedge *model.Flowedge) (int64, error) {
 	query := "INSERT " +
-		"INTO flowedge(agent_id, hostname, version, status) VALUES (?, ?, ?, ?) " +
+		"INTO flowedge(agent_id, hostname, metadata, version, status) VALUES (?, ?, ?, ?, ?) " +
 		"ON DUPLICATE KEY UPDATE " +
 		"hostname = VALUES(hostname), version = VALUES(version), status = VALUES(status)"
-	result, err := MysqlClient.Exec(query, flowedge.AgentID, flowedge.Hostname, flowedge.Version, flowedge.Status)
+	result, err := MysqlClient.Exec(query, flowedge.AgentID, flowedge.Hostname, flowedge.Metadata, flowedge.Version, flowedge.Status)
 	if err != nil {
 		return 0, err
 	}

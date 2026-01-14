@@ -92,12 +92,13 @@ type TaskServiceInterface interface {
 	Create(task *model.Task) (int64, error)
 	Update(task *model.Task) (int64, error)
 	Delete(id int) (int64, error)
+	GetConfig(id int) (string, error)
 }
 
 type FlowedgeServiceInterface interface {
 	List(pageNumber, pageSize int) ([]*model.Flowedge, error)
 	Count() (int, error)
 	FetchFlowedgesByApplication(application string) (interface{}, error)
-	Create(flowedge *model.Flowedge) (int64, error)
+	Create(flowedge *model.FlowedgeCreateRequest) (int64, error)
 	PatchApplication(flowedge *model.FlowedgePatchRequest) (*model.FlowedgePatchResponse, error)
 }

@@ -51,9 +51,10 @@ func SettingRegister(api *gin.RouterGroup) {
 	// 任务管理路由
 	taskRoutes := api.Group("/setting/tasks")
 	{
-		taskRoutes.GET("", taskController.List)          // 获取任务列表
-		taskRoutes.POST("", taskController.Create)       // 创建任务
-		taskRoutes.PUT("/:id", taskController.Update)    // 更新任务
-		taskRoutes.DELETE("/:id", taskController.Delete) // 删除任务
+		taskRoutes.GET("", taskController.List)                 // 获取任务列表
+		taskRoutes.POST("", taskController.Create)              // 创建任务
+		taskRoutes.PUT("/:id", taskController.Update)           // 更新任务
+		taskRoutes.DELETE("/:id", taskController.Delete)        // 删除任务
+		taskRoutes.GET("/:id/detail", taskController.GetDetail) // 获取单个任务配置
 	}
 }

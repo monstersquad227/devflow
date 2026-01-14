@@ -34,3 +34,7 @@ func (t *TaskService) Update(task *model.Task) (int64, error) {
 func (t *TaskService) Delete(id int) (int64, error) {
 	return t.TaskRepository.DeleteTask(id)
 }
+
+func (t *TaskService) GetConfig(id int) (string, error) {
+	return "", nil
+}
