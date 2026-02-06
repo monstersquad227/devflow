@@ -84,7 +84,12 @@ func (svc *ProjectService) ListProjectApplications() ([]*model.Project, error) {
 }
 
 func (svc *ProjectService) ListBranches(gitlabId int) ([]*gitlab.Branch, error) {
-	branches, _, err := GitlabClient.Branches.ListBranches(gitlabId, &gitlab.ListBranchesOptions{})
+	branches, _, err := GitlabClient.Branches.ListBranches(gitlabId, &gitlab.ListBranchesOptions{
+		ListOptions: gitlab.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
